@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link href="styles.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        {% if app.session.get('user') is not null %}
+            {# User is authenticated #}
+            <form action="{{ path('logout') }}" method="POST">
+                <button type="submit">Logout</button>
+            </form>
+        {% else %}
+            {# User is not authenticated #}
+            <form action="{{ path('login') }}" method="POST">
+                <button type="submit">Login</button>
+            </form>
+            
+            <form action="{{ path('register') }}" method="POST">
+                <button type="submit">Register</button>
+            </form>
+        {% endif %}
+    </div>
+
+    <div class="search-container">
+        <form method="get" action="{{ path('search') }}">
+            <input type="text" name="query" placeholder="Search...">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    {% for trajet in trajets %}
+    <div class="post">
+        <div class="profile">
+            <img src="profile.jpg" alt="Profile Picture">
+            <div class="name">{{ trajet.conducteur_name }}</div>
+            <div class="time">{{ trajet.date }}</div>
+        </div>
+        <div class="details">
+            <p><strong>From:</strong> {{ trajet.debut }}</p>
+            <p><strong>To:</strong> {{ trajet.arrive }}</p>
+            <p><strong>Departure:</strong> {{ trajet.date }}</p>
+            <p><strong>Seats Available:</strong> {{ trajet.nbr_place - trajet.nbr_place_occupe }}</p>
+            <p><strong>Price:</strong> €{{ trajet.prix }}</p>
+            <form method="post">
+                <input type="hidden" name="trajet_id" value="{{ trajet.id_trajet }}">
+                <button type="submit" name="reserve" class="reserve-btn">Reserve</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        {% if app.session.get('user') is not null %}
+            {# User is authenticated, display logout button #}
+            <form action="{{ path('logout') }}" method="POST">
+                <button type="submit">Logout</button>
+            </form>
+        {% endif %}
+    </div>
+    
+    <div class="profile-page">
+        <div class="profile-header">
+            <img src="profile-large.jpg" alt="Profile Picture">
+            <div class="profile-info">
+                <h2>{{ app.session.get('user').name }}</h2>
+                <p><strong>Email:</strong> {{ app.session.get('user').email }}</p>
+                <p><strong>Phone:</strong> {{ app.session.get('user').phone }}</p>
+                <p><strong>Bio:</strong> {{ app.session.get('user').bio }}</p>
+            </div>
+        </div>
+        
+        <div class="profile-content">
+            <h3>Posts Created</h3>
+            {% for post in postsCreated %}
+                <div class="post">
+                    <p><strong>From:</strong> {{ post.from }}</p>
+                    <p><strong>To:</strong> {{ post.to }}</p>
+                    <p><strong>Departure:</strong> {{ post.departure }}</p>
+                    <p><strong>Seats Available:</strong> {{ post.seatsAvailable }}</p>
+                    <p><strong>Price:</strong> €{{ post.price }}</p>
+                </div>
+            {% endfor %}
+            
+            <h3>Posts Joined</h3>
+            {% for post in postsJoined %}
+                <div class="post">
+                    <p><strong>From:</strong> {{ post.from }}</p>
+                    <p><strong>To:</strong> {{ post.to }}</p>
+                    <p><strong>Departure:</strong> {{ post.departure }}</p>
+                    <p><strong>Seats Available:</strong> {{ post.seatsAvailable }}</p>
+                    <p><strong>Price:</strong> €{{ post.price }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
