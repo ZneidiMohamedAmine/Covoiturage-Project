@@ -35,7 +35,7 @@ class UserController extends AbstractController
         }
         
         // Render login page with errors
-        return $this->render('user/login.html.twig', [
+        return $this->render('home/login.html.twig', [
             'error' => $error,
         ]);
     }
@@ -98,7 +98,7 @@ class UserController extends AbstractController
         }
 
         // Render registration page with errors
-        return $this->render('user/register.html.twig', [
+        return $this->render('home/register.html.twig', [
             'error' => $error,
         ]);
     }

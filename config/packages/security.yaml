@@ -6,6 +6,11 @@ security:
     providers:
         users_in_memory: { memory: null }
     firewalls:
+        login:
+            pattern: ^/login
+            stateless: true
+            json_login:
+
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
@@ -24,6 +29,8 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
