@@ -10,7 +10,7 @@
     <div class="header">
         {% if app.session.get('user') is not null %}
             {# User is authenticated, display logout button #}
-            <form action="{{ path('logout') }}" method="POST">
+            <form action="{{ path('app_logout') }}" method="POST">
                 <button type="submit">Logout</button>
             </form>
         {% endif %}

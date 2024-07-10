@@ -28,7 +28,7 @@ class UserController extends AbstractController
             if ($username === 'admin' && $password === 'password') {
 
                 
-                return $this->redirectToRoute('profile');
+                return $this->redirectToRoute('home/profile.html.twig');
             } else {
                 $error[] = "Invalid username or password.";
             }
@@ -43,8 +43,6 @@ class UserController extends AbstractController
     #[Route('/logout', name: 'app_logout')]
     public function logout(SessionInterface $session): Response
     {
-
-
         // Redirect to login page
         return $this->redirectToRoute('app_login');
     }

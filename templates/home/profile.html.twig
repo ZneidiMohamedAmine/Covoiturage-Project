@@ -14,7 +14,7 @@
         // Check if user is authenticated
         if (isset($_SESSION['user'])) {
             // User is authenticated, display logout button or other authenticated content
-            echo '<form action="logout" method="POST">';
+            echo '<form action="app_logout" method="POST">';
             echo '<button type="submit">Logout</button>';
             echo '</form>';
         }
