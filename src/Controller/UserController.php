@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class UserController extends AbstractController
 {
-    #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
+    #[Route('/', name: 'app_login', methods: ['GET', 'POST'])]
     public function login(Request $request): Response
     {
         $error = [];
@@ -35,7 +35,7 @@ class UserController extends AbstractController
         }
         
         // Render login page with errors
-        return $this->render('home/login.html.twig', [
+        return $this->render('home/index.html.twig', [
             'error' => $error,
         ]);
     }

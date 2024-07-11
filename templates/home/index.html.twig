@@ -1,31 +1,9 @@
-{# templates/react_app.html.twig #}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>React App</title>
-</head>
-<body>
-    <div id="react-app"></div>  {# Placeholder for React app #}
-    <script src="{{ asset('build/bundle.js') }}"></script>  {# Adjust the path based on your setup #}
-</body>
-</html>
-<?php
-// src/Controller/ReactController.php
-namespace App\Controller;
+{%extends 'index.html.twig' %}
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+{%block title%} test {%endblock %}
 
-class ReactController extends AbstractController
-{
-    /**
-     * @Route("/react", name="react_app")
-     */
-    public function reactApp(): Response
-    {
-        return $this->render('react_app.html.twig');
-    }
-}
-?>
+{%block body%}
+
+{{react_component('Controller')}}
+
+{%endblock%}
