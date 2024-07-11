@@ -6,17 +6,26 @@ security:
     providers:
         users_in_memory: { memory: null }
     firewalls:
-        login:
-            pattern: ^/login
-            stateless: true
-            json_login:
+
 
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            lazy: true
-            provider: users_in_memory
+        #main:
+            #lazy: true
+            #provider: users_in_memory
+        login:
+            pattern: ^/login
+            stateless: true
+            json_login:
+                check_path: /login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        api:
+            pattern:   ^/api
+            stateless: true
+            jwt: ~
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -29,8 +38,8 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
-        - { path: ^/api/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/,       roles: PUBLIC_ACCESS  }
 
 when@test:
     security:
