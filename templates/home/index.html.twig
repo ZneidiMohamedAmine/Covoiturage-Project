@@ -1,38 +1,31 @@
+{# templates/react_app.html.twig #}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
-    <link href="styles.css" type="text/css" rel="stylesheet">
+    <title>React App</title>
 </head>
 <body>
-    <div class="header">
-        {% if app.session.get('user') is not null %}
-            {# User is authenticated #}
-            <form action="{{ path('app_logout') }}" method="POST">
-                <button type="submit">Logout</button>
-            </form>
-        {% else %}
-            {# User is not authenticated #}
-            <form action="{{ path('app_login') }}" method="POST">
-                <button type="submit">Login</button>
-            </form>
-            
-<form action="{{ path('app_register') }}" method="POST">
-                <button type="submit">Register</button>
-            </form>
-        {% endif %}
-    </div>
-
-    <div class="search-container">
-        <form >
-            <input type="text" name="query" placeholder="Search...">
-            <button type="submit">Search</button>
-        </form>
-    </div>
-
-
-
+    <div id="react-app"></div>  {# Placeholder for React app #}
+    <script src="{{ asset('build/bundle.js') }}"></script>  {# Adjust the path based on your setup #}
 </body>
 </html>
+<?php
+// src/Controller/ReactController.php
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+class ReactController extends AbstractController
+{
+    /**
+     * @Route("/react", name="react_app")
+     */
+    public function reactApp(): Response
+    {
+        return $this->render('react_app.html.twig');
+    }
+}
+?>
