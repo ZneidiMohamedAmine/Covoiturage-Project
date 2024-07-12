@@ -4,10 +4,11 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+class User implements  PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -49,6 +50,9 @@ class User
     #[ORM\JoinColumn(nullable: false)]
     private ?comment $CommentID = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $email = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -66,11 +70,10 @@ class User
         return $this;
     }
 
-    public function getFirstNmae(): ?string
+    public function getFirstName(): ?string
     {
         return $this->FirstName;
     }
-    #U8j90;40
 
     public function setFirstName(string $nom): static
     {
@@ -185,5 +188,45 @@ class User
         $this->CommentID = $CommentID;
 
         return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getRoles(): array
+    {
+        return ['ROLE_USER'];
+    }
+
+    public function getSalt(): ?string
+    {
+        // Not needed when using bcrypt or sodium
+        return null;
+    }
+
+    public function eraseCredentials()
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email; // Assuming email is the identifier
+    }
+
+    public function getUsername(): string
+    {
+        // Deprecated, use getUserIdentifier() instead
+        return (string) $this->email;
     }
 }
