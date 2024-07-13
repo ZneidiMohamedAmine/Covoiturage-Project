@@ -15,7 +15,7 @@
             </form>
         {% else %}
             {# User is not authenticated #}
-            <form action="{{ path('app_login') }}" method="POST">
+            <form action="{{ path('app_login') }}" method="GET">
                 <button type="submit">Login</button>
             </form>
             

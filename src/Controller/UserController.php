@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Controller;
 
@@ -11,27 +11,29 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use App\Repository\UserRepository;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 
 class UserController extends AbstractController
 {
-    #[Route('/login', name: 'app_login', methods: ['POST'])]
-    public function login(Request $request, AuthenticationUtils $authenticationUtils): JsonResponse
+    
+    #[Route('/login', name: 'app_login', methods: ['POST','GET'])]
+    public function login(Request $request): Response
     {
-        $email = $request->request->get('email');
-        $password = $request->request->get('password');
+        if ($request->isMethod('POST')) {
+            $firstname = $request->request->get('email');
+            $lastname = $request->request->get('password');
 
-        // Perform any additional validation as needed
-
-        if ($email === 'admin@yahoo.com' && $password === 'abc') {
-            return new JsonResponse(['message' => 'Authentication successful'], JsonResponse::HTTP_OK);
-           
-
-        } else {
-            return new JsonResponse(['message' => 'Invalid credentials'], JsonResponse::HTTP_UNAUTHORIZED);
+            if (1 == 1) $this->redirectToRoute('app_profile');
         }
+        return $this->render("home/login.html.twig");
+        
+
     }
 
+    
     #[Route('/logout', name: 'app_logout')]
     public function logout(): void
     {
@@ -70,8 +72,7 @@ class UserController extends AbstractController
                 $user->setBirthDate($birthdate);
                 $user->setAddress($address); // Assuming Address is a string
                 $user->setGender($gender);
-                $user->setDriverLicense($driverLicense);
-                $user->setRole($role);
+                $user->setDriverLisence($driverLicense);
                 $user->setPhotoAdress('default.jpg');
 
                 // Hash the password before setting it

@@ -4,19 +4,33 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User implements  PasswordAuthenticatedUserInterface
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::BIGINT)]
-    private ?string $cin = null;
+    #[ORM\Column(length: 180)]
+    private ?string $email = null;
+
+    /**
+     * @var list<string> The user roles
+     */
+    #[ORM\Column]
+    private array $roles = [];
+
+    /**
+     * @var string The hashed password
+     */
+    #[ORM\Column]
+    private ?string $password = null;
 
     #[ORM\Column(length: 255)]
     private ?string $FirstName = null;
@@ -27,47 +41,94 @@ class User implements  PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $BirthDate = null;
 
-    #[ORM\ManyToOne(inversedBy: 'AddressUser')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Address $Address = null;
-
     #[ORM\Column(length: 255)]
     private ?string $Gender = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?bool $DriverLicense = null;
+    #[ORM\Column(length: 255)]
+    private ?string $CIN = null;
+
+    #[ORM\Column]
+    private ?bool $DriverLisence = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Role = null;
+    private ?string $photoAdress = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $PhotoAdress = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $Password = null;
-
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?comment $CommentID = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $email = null;
+    private ?string $Address = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getCin(): ?string
+    public function getEmail(): ?string
     {
-        return $this->cin;
+        return $this->email;
     }
 
-    public function setCin(string $cin): static
+    public function setEmail(string $email): static
     {
-        $this->cin = $cin;
+        $this->email = $email;
 
         return $this;
+    }
+
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    /**
+     * @see UserInterface
+     *
+     * @return list<string>
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    /**
+     * @param list<string> $roles
+     */
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): static
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials(): void
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
     }
 
     public function getFirstName(): ?string
@@ -75,9 +136,9 @@ class User implements  PasswordAuthenticatedUserInterface
         return $this->FirstName;
     }
 
-    public function setFirstName(string $nom): static
+    public function setFirstName(string $FirstName): static
     {
-        $this->FirstName = $nom;
+        $this->FirstName = $FirstName;
 
         return $this;
     }
@@ -106,18 +167,6 @@ class User implements  PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAddress(): ?Address
-    {
-        return $this->Address;
-    }
-
-    public function setAddress(?Address $Address): static
-    {
-        $this->Address = $Address;
-
-        return $this;
-    }
-
     public function getGender(): ?string
     {
         return $this->Gender;
@@ -130,103 +179,51 @@ class User implements  PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isDriverLicense(): ?bool
+    public function getCIN(): ?string
     {
-        return $this->DriverLicense;
+        return $this->CIN;
     }
 
-    public function setDriverLicense(?bool $DriverLicense): static
+    public function setCIN(string $CIN): static
     {
-        $this->DriverLicense = $DriverLicense;
+        $this->CIN = $CIN;
 
         return $this;
     }
 
-    public function getRole(): ?string
+    public function isDriverLisence(): ?bool
     {
-        return $this->Role;
+        return $this->DriverLisence;
     }
 
-    public function setRole(string $Role): static
+    public function setDriverLisence(bool $DriverLisence): static
     {
-        $this->Role = $Role;
+        $this->DriverLisence = $DriverLisence;
 
         return $this;
     }
 
     public function getPhotoAdress(): ?string
     {
-        return $this->PhotoAdress;
+        return $this->photoAdress;
     }
 
-    public function setPhotoAdress(string $PhotoAdress): static
+    public function setPhotoAdress(string $photoAdress): static
     {
-        $this->PhotoAdress = $PhotoAdress;
+        $this->photoAdress = $photoAdress;
 
         return $this;
     }
 
-    public function getPassword(): ?string
+    public function getAddress(): ?string
     {
-        return $this->Password;
+        return $this->Address;
     }
 
-    public function setPassword(string $Password): static
+    public function setAddress(string $Address): static
     {
-        $this->Password = $Password;
+        $this->Address = $Address;
 
         return $this;
-    }
-
-    public function getCommentID(): ?comment
-    {
-        return $this->CommentID;
-    }
-
-    public function setCommentID(comment $CommentID): static
-    {
-        $this->CommentID = $CommentID;
-
-        return $this;
-    }
-
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function getRoles(): array
-    {
-        return ['ROLE_USER'];
-    }
-
-    public function getSalt(): ?string
-    {
-        // Not needed when using bcrypt or sodium
-        return null;
-    }
-
-    public function eraseCredentials()
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
-    }
-
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->email; // Assuming email is the identifier
-    }
-
-    public function getUsername(): string
-    {
-        // Deprecated, use getUserIdentifier() instead
-        return (string) $this->email;
     }
 }

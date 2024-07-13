@@ -7,14 +7,11 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="form-container">
+    <div action={{ path('app_login')}}>
         <h2>Login</h2>
-        <form action="{{ path('app_login') }}" method="post">
-            <input type="text" name="email" placeholder="email">
-            <input type="password" name="password" placeholder="Password">
-            {% if error is not empty %}
-                <div>{{ error|join(' ') }}</div>
-            {% endif %}
+        <form id="login-form">
+            <input type="text" name="email" id="email" placeholder="Email">
+            <input type="password" name="password" id="password" placeholder="Password">
             <button name="submit" type="submit">Login</button>
         </form>
 
@@ -23,5 +20,6 @@
             <button type="submit" value="register">Register</button>
         </form>
     </div>
+
 </body>
 </html>
