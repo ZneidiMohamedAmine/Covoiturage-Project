@@ -23,8 +23,8 @@ class UserController extends AbstractController
     public function login(Request $request): Response
     {
         if ($request->isMethod('POST')) {
-            $firstname = $request->request->get('email');
-            $lastname = $request->request->get('password');
+            $email = $request->request->get('email');
+            $password = $request->request->get('password');
 
             if (1 == 1) $this->redirectToRoute('app_profile');
         }

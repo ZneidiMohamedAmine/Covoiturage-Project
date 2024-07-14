@@ -174,7 +174,7 @@ class Address
         if ($this->AddressUser->removeElement($addressUser)) {
             // set the owning side to null (unless already changed)
             if ($addressUser->getAddress() === $this) {
-                $addressUser->setAddress(null);
+                $addressUser->setAddress("null");
             }
         }
 

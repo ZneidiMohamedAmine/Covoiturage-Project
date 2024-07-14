@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class TrajetController extends AbstractController
 {
     #[Route('/trajet', name: 'app_trajet', methods: ['POST'])]
-    public function index(Request $request, EntityManagerInterface $entityManager): Response
+    public function creeTrajet(Request $request, EntityManagerInterface $entityManager): Response
     {
         
             $data = json_decode($request->getContent(), true);
@@ -72,5 +72,11 @@ class TrajetController extends AbstractController
                 return new JsonResponse(['error' => 'Failed to create trajet: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         } 
+
+    #[Route('/trajet', name: 'app_trajet', methods: ['POST'])]
+    public function modifierTrajet(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        return $this->render("index.html.twig");
     }
+}
 
