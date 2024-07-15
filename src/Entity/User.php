@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -55,6 +57,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     private ?string $Address = null;
+
+    /**
+     * @var Collection<int, Trajet>
+     */
+    #[ORM\OneToMany(targetEntity: Trajet::class, mappedBy: 'owner_id')]
+    private Collection $userTrajet;
+
+    public function __construct()
+    {
+        $this->userTrajet = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -223,6 +236,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setAddress(string $Address): static
     {
         $this->Address = $Address;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Trajet>
+     */
+    public function getUserTrajet(): Collection
+    {
+        return $this->userTrajet;
+    }
+
+    public function addUserTrajet(Trajet $userTrajet): static
+    {
+        if (!$this->userTrajet->contains($userTrajet)) {
+            $this->userTrajet->add($userTrajet);
+            $userTrajet->setOwnerId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserTrajet(Trajet $userTrajet): static
+    {
+        if ($this->userTrajet->removeElement($userTrajet)) {
+            // set the owning side to null (unless already changed)
+            if ($userTrajet->getOwnerId() === $this) {
+                $userTrajet->setOwnerId(null);
+            }
+        }
 
         return $this;
     }

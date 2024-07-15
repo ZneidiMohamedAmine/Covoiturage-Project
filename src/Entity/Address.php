@@ -21,9 +21,7 @@ class Address
     #[ORM\Column(length: 255)]
     private ?string $rue = null;
 
-    #[ORM\ManyToOne(inversedBy: 'Debut')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Trajet $trajet = null;
+
 
     /**
      * @var Collection<int, Trajet>
@@ -37,17 +35,12 @@ class Address
     #[ORM\OneToMany(targetEntity: Trajet::class, mappedBy: 'Destination', orphanRemoval: true)]
     private Collection $Destiantion;
 
-    /**
-     * @var Collection<int, User>
-     */
-    #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'Address', orphanRemoval: true)]
-    private Collection $AddressUser;
+
 
     public function __construct()
     {
         $this->Debut = new ArrayCollection();
         $this->Destiantion = new ArrayCollection();
-        $this->AddressUser = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -79,17 +72,7 @@ class Address
         return $this;
     }
 
-    public function getTrajet(): ?Trajet
-    {
-        return $this->trajet;
-    }
 
-    public function setTrajet(?Trajet $trajet): static
-    {
-        $this->trajet = $trajet;
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, Trajet>
@@ -151,33 +134,7 @@ class Address
         return $this;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
-    public function getAddressUser(): Collection
-    {
-        return $this->AddressUser;
-    }
 
-    public function addAddressUser(User $addressUser): static
-    {
-        if (!$this->AddressUser->contains($addressUser)) {
-            $this->AddressUser->add($addressUser);
-            $addressUser->setAddress($this);
-        }
 
-        return $this;
-    }
 
-    public function removeAddressUser(User $addressUser): static
-    {
-        if ($this->AddressUser->removeElement($addressUser)) {
-            // set the owning side to null (unless already changed)
-            if ($addressUser->getAddress() === $this) {
-                $addressUser->setAddress("null");
-            }
-        }
-
-        return $this;
-    }
 }

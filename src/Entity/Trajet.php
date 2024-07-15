@@ -12,25 +12,25 @@ use Doctrine\ORM\Mapping as ORM;
 class Trajet
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'Debut')]
+    #[ORM\ManyToOne(targetEntity: Address::class, inversedBy: 'Debut')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Address $Debut = null;
 
-    #[ORM\ManyToOne(inversedBy: 'Destiantion')]
+    #[ORM\ManyToOne(targetEntity: Address::class, inversedBy: 'Destination')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Address $Destination = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $SeatsAvailable = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $SeatsOccupied = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $Price = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
@@ -39,25 +39,25 @@ class Trajet
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $Time = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'trajets')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $owner_id = null;
+
     /**
      * @var Collection<int, Address>
      */
     #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'trajet')]
-    
+    private Collection $addresses;
 
     public function __construct()
     {
-        
+        $this->addresses = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
     }
-
-    /**
-     * @return Collection<int, Address>
-     */
 
     public function getDebut(): ?Address
     {
@@ -143,4 +143,15 @@ class Trajet
         return $this;
     }
 
+    public function getOwnerId(): ?User
+    {
+        return $this->owner_id;
+    }
+
+    public function setOwnerId(?User $owner_id): static
+    {
+        $this->owner_id = $owner_id;
+
+        return $this;
+    }
 }
