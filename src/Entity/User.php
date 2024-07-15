@@ -64,9 +64,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Trajet::class, mappedBy: 'owner_id')]
     private Collection $userTrajet;
 
+    /**
+     * @var Collection<int, Reservation>
+     */
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'iduser')]
+    private Collection $reservationuser;
+
     public function __construct()
     {
         $this->userTrajet = new ArrayCollection();
+        $this->reservationuser = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -264,6 +271,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($userTrajet->getOwnerId() === $this) {
                 $userTrajet->setOwnerId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Reservation>
+     */
+    public function getReservationuser(): Collection
+    {
+        return $this->reservationuser;
+    }
+
+    public function addReservationuser(Reservation $reservationuser): static
+    {
+        if (!$this->reservationuser->contains($reservationuser)) {
+            $this->reservationuser->add($reservationuser);
+            $reservationuser->setIduser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReservationuser(Reservation $reservationuser): static
+    {
+        if ($this->reservationuser->removeElement($reservationuser)) {
+            // set the owning side to null (unless already changed)
+            if ($reservationuser->getIduser() === $this) {
+                $reservationuser->setIduser(null);
             }
         }
 

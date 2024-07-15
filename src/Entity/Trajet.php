@@ -49,9 +49,16 @@ class Trajet
     #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'trajet')]
     private Collection $addresses;
 
+    /**
+     * @var Collection<int, Reservation>
+     */
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'idtrajet')]
+    private Collection $trajetreservation;
+
     public function __construct()
     {
         $this->addresses = new ArrayCollection();
+        $this->trajetreservation = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -151,6 +158,36 @@ class Trajet
     public function setOwnerId(?User $owner_id): static
     {
         $this->owner_id = $owner_id;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Reservation>
+     */
+    public function getTrajetreservation(): Collection
+    {
+        return $this->trajetreservation;
+    }
+
+    public function addTrajetreservation(Reservation $trajetreservation): static
+    {
+        if (!$this->trajetreservation->contains($trajetreservation)) {
+            $this->trajetreservation->add($trajetreservation);
+            $trajetreservation->setIdtrajet($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTrajetreservation(Reservation $trajetreservation): static
+    {
+        if ($this->trajetreservation->removeElement($trajetreservation)) {
+            // set the owning side to null (unless already changed)
+            if ($trajetreservation->getIdtrajet() === $this) {
+                $trajetreservation->setIdtrajet(null);
+            }
+        }
 
         return $this;
     }

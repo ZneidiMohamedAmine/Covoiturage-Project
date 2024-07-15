@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Trajet;
 use App\Entity\Address;
 use App\Entity\User;
+use App\Entity\Reservation;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -118,6 +119,7 @@ class TrajetController extends AbstractController
        
                // Retrieve the existing Trajet entity
                $trajetRepository = $entityManager->getRepository(Trajet::class);
+               /** @var Trajet $trajet */
                $trajet = $trajetRepository->find($trajetId);
        
                if (!$trajet) {
@@ -128,35 +130,56 @@ class TrajetController extends AbstractController
                if ($trajet->getOwnerId() !== $user) {
                    return new JsonResponse(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
                }
-       
-               // Update Trajet entity with new data
-               $trajet->setDate(new \DateTime($data['date']));
-               $trajet->setTime(new \DateTime($data['time']));
-               $trajet->setSeatsOccupied((int)$data['seatsoccupied']);
-               $trajet->setSeatsAvailable((int)$data['seatsavailable']);
-               $trajet->setPrice((float)$data['price']);
-       
-               // Update Address entities (if needed)
-               $debut = $trajet->getDebut();
-               $destination = $trajet->getDestination();
-       
-               $debut->setVille($data['villedebut']);
-               $debut->setRue($data['ruedebut']);
-               $entityManager->persist($debut);
-       
-               $destination->setVille($data['villedestination']);
-               $destination->setRue($data['ruedestination']);
-               $entityManager->persist($destination);
-       
-               // Persist changes and flush
-               $entityManager->persist($trajet);
-               $entityManager->flush();
-       
-               // Return success response
-               return new JsonResponse(['success' => 'Trajet modified successfully'], Response::HTTP_OK);
-           } catch (\Exception $e) {
-               return new JsonResponse(['error' => 'Failed to modify trajet: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-           }
+
+                       // Count existing reservations for the given trajetId and userId
+            $qb = $entityManager->createQueryBuilder();
+            $qb->select('COUNT(r.id)')
+           ->from(Reservation::class, 'r')
+           ->where('r.idtrajet = :trajetId')
+           ->setParameter('trajetId', $trajetId);
+
+
+        $count = $qb->getQuery()->getSingleScalarResult();
+
+        $totalSeatsAvailable = $trajet->getSeatsAvailable() + $trajet->getSeatsOccupied();
+        $newSeatsOccupied = (int) $data['seatsoccupied'];
+
+        // Check if the new seats occupied + existing reservations exceed total available seats
+        if ($newSeatsOccupied + $count > $totalSeatsAvailable) {
+            return new JsonResponse([
+                'error' => 'Seats occupied exceed available seats including reservations',
+                'count' => $count
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Update Trajet entity with new data
+        $trajet->setDate(new \DateTime($data['date']));
+        $trajet->setTime(new \DateTime($data['time']));
+        $trajet->setSeatsOccupied($newSeatsOccupied + $count);
+        $trajet->setSeatsAvailable($totalSeatsAvailable - $newSeatsOccupied - $count);
+        $trajet->setPrice((float) $data['price']);
+
+        // Update Address entities (if needed)
+        $debut = $trajet->getDebut();
+        $destination = $trajet->getDestination();
+
+        $debut->setVille($data['villedebut']);
+        $debut->setRue($data['ruedebut']);
+        $entityManager->persist($debut);
+
+        $destination->setVille($data['villedestination']);
+        $destination->setRue($data['ruedestination']);
+        $entityManager->persist($destination);
+
+        // Persist changes and flush
+        $entityManager->persist($trajet);
+        $entityManager->flush();
+
+        // Return success response
+        return new JsonResponse(['success' => 'Trajet modified successfully'], Response::HTTP_OK);
+    } catch (\Exception $e) {
+        return new JsonResponse(['error' => 'Failed to modify trajet: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
     #[Route('/trajet/supprimer', name: 'app_modifier_supprimer', methods: ['POST'])]
     public function supprimerTrajet(Request $request, EntityManagerInterface $entityManager): Response
