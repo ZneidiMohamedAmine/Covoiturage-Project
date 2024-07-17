@@ -19,6 +19,14 @@ class Comment
     #[ORM\Column(nullable: true)]
     private ?int $StarsNumber = null;
 
+    #[ORM\ManyToOne(inversedBy: 'commentmade')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?user $commenterId = null;
+
+    #[ORM\ManyToOne(inversedBy: 'commentgiven')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?user $commentedId = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -44,6 +52,30 @@ class Comment
     public function setStarsNumber(?int $StarsNumber): static
     {
         $this->StarsNumber = $StarsNumber;
+
+        return $this;
+    }
+
+    public function getCommenterId(): ?user
+    {
+        return $this->commenterId;
+    }
+
+    public function setCommenterId(?user $commenterId): static
+    {
+        $this->commenterId = $commenterId;
+
+        return $this;
+    }
+
+    public function getCommentedId(): ?user
+    {
+        return $this->commentedId;
+    }
+
+    public function setCommentedId(?user $commentedId): static
+    {
+        $this->commentedId = $commentedId;
 
         return $this;
     }

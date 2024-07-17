@@ -70,10 +70,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'iduser')]
     private Collection $reservationuser;
 
+    /**
+     * @var Collection<int, Comment>
+     */
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'commenterId')]
+    private Collection $commentmade;
+
+    /**
+     * @var Collection<int, Comment>
+     */
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'commentedId')]
+    private Collection $commentgiven;
+
     public function __construct()
     {
         $this->userTrajet = new ArrayCollection();
         $this->reservationuser = new ArrayCollection();
+        $this->commentmade = new ArrayCollection();
+        $this->commentgiven = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -301,6 +315,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($reservationuser->getIduser() === $this) {
                 $reservationuser->setIduser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getCommentmade(): Collection
+    {
+        return $this->commentmade;
+    }
+
+    public function addCommentmade(Comment $commentmade): static
+    {
+        if (!$this->commentmade->contains($commentmade)) {
+            $this->commentmade->add($commentmade);
+            $commentmade->setCommenterId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentmade(Comment $commentmade): static
+    {
+        if ($this->commentmade->removeElement($commentmade)) {
+            // set the owning side to null (unless already changed)
+            if ($commentmade->getCommenterId() === $this) {
+                $commentmade->setCommenterId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getCommentgiven(): Collection
+    {
+        return $this->commentgiven;
+    }
+
+    public function addCommentgiven(Comment $commentgiven): static
+    {
+        if (!$this->commentgiven->contains($commentgiven)) {
+            $this->commentgiven->add($commentgiven);
+            $commentgiven->setCommentedId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentgiven(Comment $commentgiven): static
+    {
+        if ($this->commentgiven->removeElement($commentgiven)) {
+            // set the owning side to null (unless already changed)
+            if ($commentgiven->getCommentedId() === $this) {
+                $commentgiven->setCommentedId(null);
             }
         }
 

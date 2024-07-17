@@ -63,6 +63,22 @@
                 <p>No posts joined.</p>
             {% endfor %}
         </div>
+        <h3>Comments</h3>
+            {% for comment in comments %}
+                <div class="post">
+                    <ul>
+                        <li>
+                            <strong>name:</strong> {{ comment.commentername}} <br>
+                            <strong>lastname:</strong> {{ comment.commenterLastname }} <br>
+                            <strong>stars:</strong> {{ comment.Stars }} <br>
+                            <strong>comment:</strong> {{ comment.Description }} <br>
+                        </li>
+                    </ul>
+                </div>
+            {% else %}
+                <p>No Comment Posted.</p>
+            {% endfor %}
+        </div>
     </div>
 </body>
 </html>

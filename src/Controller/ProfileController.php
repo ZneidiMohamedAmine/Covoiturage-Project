@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Address;
+use App\Entity\Comment;
 use App\Entity\Trajet;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ProfileController extends AbstractController
 {
@@ -37,6 +39,9 @@ class ProfileController extends AbstractController
         $tripJoined = $tripRepository->findAllJoined(1);
 
         $addressRepository = $entityManager->getRepository(Address::class);
+
+        $CommentRepository = $entityManager->getRepository(Comment::class);
+        $CommentArray = $CommentRepository->findAllCommentrelated(1);
 
         $tripDetails = [];
 
@@ -99,10 +104,79 @@ class ProfileController extends AbstractController
             }
         }
 
+        $comments = [];
+
+        foreach ($CommentArray as $comment) {
+            $commenterid = $comment->getCommenterId();
+            $user = $userRepository->find($commenterid);
+            $username = $user->getFirstname();
+            $userlast = $user->getLastname();
+            
+
+           
+                $comments[] = [
+                    'Stars' => $comment->getStarsNumber(),
+                    'Description' => $comment->getDescription(),
+                    'commentername' => $username,
+                    'commenterLastname' => $userlast
+                ];
+            
+        }
+
         return $this->render('home/profile.html.twig', [
             'userinfo' => $userArray,
             'tripcreated' => $tripDetailsCreated,
             'tripjoined' => $tripDetailsJoined,
+            'comments' => $comments,
         ]);
+    }
+
+    #[Route('/profile/comment', name: 'app_comment_profile')]
+    public function cooment(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $userId = 2;
+        $userRepository = $entityManager->getRepository(User::class);
+        $user = $userRepository->find($userId);
+
+        if (!$user) {
+            throw $this->createNotFoundException('User not found');
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if ($data === null) {
+            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $commenteduser = $villedebut = $data['commenteduserid'] ?? null;
+
+        if ($commenteduser == null) {
+            throw $this->createNotFoundException('User not found');
+        }
+
+        $usercommentedid = $userRepository->find($commenteduser);
+
+        if (!$usercommentedid) {
+            throw $this->createNotFoundException('User not found');
+        }
+
+        if ($usercommentedid == $user) {
+            return new JsonResponse(['error' => 'Can t comment yourself'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $nbrstar = htmlspecialchars($data['nbrstar'] ?? null);
+        $description = htmlspecialchars($data['description'] ?? null);
+
+        $comment = new Comment();
+        $comment->setDescription($description);
+        $comment->setStarsNumber($nbrstar);
+        $comment->setCommentedId($usercommentedid);
+        $comment->setCommenterId($user);
+        $entityManager->persist($comment);
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => 'Comment created successfully'], Response::HTTP_CREATED);
+
+
     }
 }
