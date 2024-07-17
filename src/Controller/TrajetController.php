@@ -42,9 +42,6 @@ class TrajetController extends AbstractController
                 return new JsonResponse(['error' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
             }
 
-            
-            $user = $this->getUser();
-
             if (!$user instanceof User) {
                 return new JsonResponse(['error' => 'User is not an instance of App\Entity\User'], Response::HTTP_UNAUTHORIZED);
             }

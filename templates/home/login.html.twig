@@ -21,5 +21,28 @@
         </form>
     </div>
 
+        <div>
+            <h2>Available Trips</h2>
+            <ul>
+                {% for trip in address %}
+                     <li>
+                    <strong>Date:</strong> {{ trip.date }} <br>
+                    <strong>Time:</strong> {{ trip.time }} <br>
+                    <strong>Seats Available:</strong> {{ trip.seatsAvailable }} <br>
+                    <strong>Seats Occupied:</strong> {{ trip.seatsOccupied }} <br>
+                    <strong>Price:</strong> {{ trip.price }} <br>
+                    <strong>Debut Ville:</strong> {{ trip.debutVille }} <br>
+                    <strong>Debut Rue:</strong> {{ trip.debutRue }} <br>
+                    <strong>Destination Ville:</strong> {{ trip.destinationVille }} <br>
+                    <strong>Destination Rue:</strong> {{ trip.destinationRue }} <br>
+                </li>
+                {% else %}
+                    <li>No trips available.</li>
+                {% endfor %}
+        </ul>
+    </div>
+    {# Dump variables in Twig template #}
+            {{ dump(userinfo) }}
+
 </body>
 </html>

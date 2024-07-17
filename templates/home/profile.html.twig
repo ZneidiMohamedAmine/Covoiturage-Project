@@ -7,46 +7,61 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="header">
-        <?php
-        session_start(); // Start the session
-
-        // Check if user is authenticated
-        if (isset($_SESSION['user'])) {
-            // User is authenticated, display logout button or other authenticated content
-            echo '<form action="app_logout" method="POST">';
-            echo '<button type="submit">Logout</button>';
-            echo '</form>';
-        }
-            ?>
-</div>
+    <div class="header">
+        
+    </div>
     <div class="profile-page">
         <div class="profile-header">
-            <img src="profile-large.jpg" alt="Profile Picture">
+            <img src="{{ asset('profile-large.jpg') }}" alt="Profile Picture">
             <div class="profile-info">
-                <h2><!-- User's Name --></h2>
-                <p><strong>Email:</strong> <!-- User's Email --></p>
-                <p><strong>Phone:</strong> <!-- User's Phone --></p>
-                <p><strong>Bio:</strong> <!-- User's Bio --></p>
+                <h2>{{ userinfo.Firstname }} {{ userinfo.Lastname }}</h2>
+                <p><strong>Gender:</strong> {{ userinfo.Gender }}</p>
+                <p><strong>CanDrive:</strong> {{ userinfo.DriverLicense }}</p>
+                
             </div>
         </div>
         <div class="profile-content">
             <h3>Posts Created</h3>
-            <div class="post">
-                <p><strong>From:</strong> <!-- Post From --></p>
-                <p><strong>To:</strong> <!-- Post To --></p>
-                <p><strong>Departure:</strong> <!-- Post Departure --></p>
-                <p><strong>Seats Available:</strong> <!-- Post Seats --></p>
-                <p><strong>Price:</strong> €<!-- Post Price --></p>
-            </div>
+            {% for trip in tripcreated %}
+                <div class="post">
+                    <ul>
+                        <li>
+                            <strong>Date:</strong> {{ trip.date|date('Y-m-d') }} <br>
+                            <strong>Time:</strong> {{ trip.time|date('H:i:s') }} <br>
+                            <strong>Seats Available:</strong> {{ trip.seatsAvailable }} <br>
+                            <strong>Seats Occupied:</strong> {{ trip.seatsOccupied }} <br>
+                            <strong>Price:</strong> {{ trip.price }} <br>
+                            <strong>Debut Ville:</strong> {{ trip.debutVille }} <br>
+                            <strong>Debut Rue:</strong> {{ trip.debutRue }} <br>
+                            <strong>Destination Ville:</strong> {{ trip.destinationVille }} <br>
+                            <strong>Destination Rue:</strong> {{ trip.destinationRue }} <br>
+                        </li>
+                    </ul>
+                </div>
+            {% else %}
+                <p>No posts created.</p>
+            {% endfor %}
+            
             <h3>Posts Joined</h3>
-            <div class="post">
-                <p><strong>From:</strong> <!-- Post From --></p>
-                <p><strong>To:</strong> <!-- Post To --></p>
-                <p><strong>Departure:</strong> <!-- Post Departure --></p>
-                <p><strong>Seats Available:</strong> <!-- Post Seats --></p>
-                <p><strong>Price:</strong> €<!-- Post Price --></p>
-            </div>
+            {% for trip in tripjoined %}
+                <div class="post">
+                    <ul>
+                        <li>
+                            <strong>Date:</strong> {{ trip.date|date('Y-m-d') }} <br>
+                            <strong>Time:</strong> {{ trip.time|date('H:i:s') }} <br>
+                            <strong>Seats Available:</strong> {{ trip.seatsAvailable }} <br>
+                            <strong>Seats Occupied:</strong> {{ trip.seatsOccupied }} <br>
+                            <strong>Price:</strong> {{ trip.price }} <br>
+                            <strong>Debut Ville:</strong> {{ trip.debutVille }} <br>
+                            <strong>Debut Rue:</strong> {{ trip.debutRue }} <br>
+                            <strong>Destination Ville:</strong> {{ trip.destinationVille }} <br>
+                            <strong>Destination Rue:</strong> {{ trip.destinationRue }} <br>
+                        </li>
+                    </ul>
+                </div>
+            {% else %}
+                <p>No posts joined.</p>
+            {% endfor %}
         </div>
     </div>
 </body>
