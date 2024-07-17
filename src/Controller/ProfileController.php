@@ -132,7 +132,7 @@ class ProfileController extends AbstractController
     }
 
     #[Route('/profile/comment', name: 'app_comment_profile')]
-    public function cooment(Request $request, EntityManagerInterface $entityManager): Response
+    public function comment(Request $request, EntityManagerInterface $entityManager): Response
     {
         $userId = 2;
         $userRepository = $entityManager->getRepository(User::class);
@@ -178,5 +178,75 @@ class ProfileController extends AbstractController
         return new JsonResponse(['success' => 'Comment created successfully'], Response::HTTP_CREATED);
 
 
+    }
+    #[Route('/profile/comment/supprimer', name: 'app_comment_delete_profile')]
+    public function deletecomment(Request $request, EntityManagerInterface $entityManager): Response
+    {
+
+        $data = json_decode($request->getContent(), true);
+
+        if ($data === null) {
+            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
+        
+
+        $id = $data['id'] ?? null;
+
+
+        $CommentRepository = $entityManager->getRepository(Comment::class);
+        $userRepository = $entityManager->getRepository(User::class);
+        
+        $user = $userRepository->find(2);
+        $commentodelete = $CommentRepository->find($id);   
+
+        if($commentodelete->getcommenterId() == $user)
+        {
+            $entityManager->remove($commentodelete);
+            $entityManager->flush();
+    
+            return new JsonResponse(['success' => 'Comment deleted successfully'], Response::HTTP_CREATED);
+        }
+        else
+        {
+            return new JsonResponse(['error' => 'comment failed to delete ' ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    #[Route('/profile/comment/modifier', name: 'app_comment_modifier_profile')]
+    public function modifiercomment(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if ($data === null) {
+            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
+        
+
+        $id = $data['id'] ?? null;
+
+
+        $CommentRepository = $entityManager->getRepository(Comment::class);
+        $userRepository = $entityManager->getRepository(User::class);
+        
+        $user = $userRepository->find(2);
+        $commentomodifier = $CommentRepository->find($id);
+
+        $nbrstar = htmlspecialchars($data['nbrstar'] ?? null);
+        $description = htmlspecialchars($data['description'] ?? null);
+
+        if($commentomodifier->getcommenterId() == $user)
+        {
+
+        $commentomodifier->setDescription($description);
+        $commentomodifier->setStarsNumber($nbrstar);
+        $entityManager->persist($commentomodifier);
+        $entityManager->flush();
+        return new JsonResponse(['success' => 'Comment modifier successfully'], Response::HTTP_CREATED);
+    }
+    else
+    {
+        return new JsonResponse(['error' => 'comment n est pas modifier ' ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
 }

@@ -21,11 +21,11 @@ class Comment
 
     #[ORM\ManyToOne(inversedBy: 'commentmade')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?user $commenterId = null;
+    private ?User $commenterId = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentgiven')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?user $commentedId = null;
+    private ?User $commentedId = null;
 
     public function getId(): ?int
     {
@@ -56,24 +56,24 @@ class Comment
         return $this;
     }
 
-    public function getCommenterId(): ?user
+    public function getCommenterId(): ?User
     {
         return $this->commenterId;
     }
 
-    public function setCommenterId(?user $commenterId): static
+    public function setCommenterId(?User $commenterId): static
     {
         $this->commenterId = $commenterId;
 
         return $this;
     }
 
-    public function getCommentedId(): ?user
+    public function getCommentedId(): ?User
     {
         return $this->commentedId;
     }
 
-    public function setCommentedId(?user $commentedId): static
+    public function setCommentedId(?User $commentedId): static
     {
         $this->commentedId = $commentedId;
 
