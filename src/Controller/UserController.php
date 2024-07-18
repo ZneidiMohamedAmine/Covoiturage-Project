@@ -90,4 +90,42 @@ class UserController extends AbstractController
             'error' => $error,
         ]);
     }
+    #[Route('/user/modifier', name: 'app_register_modifier', methods: [ 'POST'])]
+    public function registermodifier(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if ($data === null) {
+            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
+
+
+$email = htmlspecialchars($data['email'] ?? '', ENT_QUOTES, 'UTF-8');
+$driverLicense = isset($data['driver_license']) ? (bool) htmlspecialchars($data['driver_license'], ENT_QUOTES, 'UTF-8') : null;
+$address = htmlspecialchars($data['address'] ?? '', ENT_QUOTES, 'UTF-8');
+$password = htmlspecialchars($data['password'] ?? '', ENT_QUOTES, 'UTF-8');
+$comfirmpassword = htmlspecialchars($data['password'] ?? '', ENT_QUOTES, 'UTF-8');
+
+        $userId = 2;
+        $userRepository = $entityManager->getRepository(User::class);
+        /** @var User $user */
+        $user = $userRepository->find($userId);
+
+        if($password == $comfirmpassword)
+        {
+            $user->setEmail($email);
+            $user->setDriverLisence($driverLicense);
+            $user->setAddress($address);
+            $user->setPassword($password);
+            $entityManager->persist($user);
+            $entityManager->flush();
+            return new JsonResponse(['success' => 'Profile modified successfully'], Response::HTTP_OK);
+        } else{
+            return new JsonResponse(['error' => 'Failed to modify Profile '], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+
+
+
+    }
 }
