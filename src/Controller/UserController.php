@@ -124,8 +124,5 @@ $comfirmpassword = htmlspecialchars($data['password'] ?? '', ENT_QUOTES, 'UTF-8'
             return new JsonResponse(['error' => 'Failed to modify Profile '], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-
-
-
     }
 }
