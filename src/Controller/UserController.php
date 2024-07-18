@@ -13,25 +13,55 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use App\Repository\UserRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+
 
 
 class UserController extends AbstractController
 {
     
-    #[Route('/login', name: 'app_login', methods: ['POST','GET'])]
-    public function login(Request $request): Response
+    #[Route('/login', name: 'app_login', methods: ['POST', 'GET'])]
+    public function login(Request $request, EntityManagerInterface $entityManager,Security $security): Response
     {
-        if ($request->isMethod('POST')) {
-            $email = $request->request->get('email');
-            $password = $request->request->get('password');
+        $error = []; // Initialize an empty array for errors
 
-            if (1 == 1) $this->redirectToRoute('app_profile');
+       // if(isset($_POST["submit"]))
+      //  {
+    
+        $data = json_decode($request->getContent(), true);
+    
+        if ($data === null) {
+            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
-        return $this->render("home/login.html.twig");
+    
+        // Access email and password from the data array (assuming keys exist)
+        $email = isset($data['email']) ? $data['email'] : null;
+        $password = isset($data['password']) ? $data['password'] : null;
+    
+        if (!$email || !$password) {
+            $error['general'] = 'Missing email or password in request.';
+            return $this->render("Pages/login.html.twig", ['error' => $error]);
+        }
+    
+        $hashedPassword = // Hashing logic (replace with your password hashing logic)
+    
+        $userRepository = $entityManager->getRepository(User::class);
+        $user = $userRepository->findBy(['email' => $email, 'password' => $password]);
         
-
+    
+        if ($user) {
+            return $this->redirectToRoute('app_profile');
+        } else {
+            $error['general'] = 'Invalid email or password.';
+            
+        }
+   // }
+    return $this->render("Pages/login.html.twig", ['error' => $error]);
     }
+    
+    
+    
 
     
     #[Route('/logout', name: 'app_logout')]
@@ -47,7 +77,7 @@ class UserController extends AbstractController
     {
         $error = [];
 
-        if ($request->isMethod('POST')) {
+        if ($request->isMethod('POST') && isset($_POST["submit"])) {
             $firstname = $request->request->get('firstname');
             $lastname = $request->request->get('lastname');
             $email = $request->request->get('email');
@@ -86,7 +116,7 @@ class UserController extends AbstractController
             }
         }
 
-        return $this->render('home/register.html.twig', [
+        return $this->render('Pages/register.html.twig', [
             'error' => $error,
         ]);
     }

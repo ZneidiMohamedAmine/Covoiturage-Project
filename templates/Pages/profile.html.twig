@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <!-- Bootstrap CSS link -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Custom styles specific to this page */
+        .header {
+            padding: 10px 0;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ccc;
+        }
+        .profile-page {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .profile-header img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+        .profile-info {
+            flex: 1;
+        }
+        .profile-content {
+            margin-top: 20px;
+        }
+        .post {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        {% if app.session.get('user') is not null %}
+            {# User is authenticated, display logout button #}
+            <form action="{{ path('logout') }}" method="POST">
+                <button type="submit" class="btn btn-danger">Logout</button>
+            </form>
+        {% endif %}
+    </div>
+    
+    <div class="profile-page">
+        <div class="profile-header">
+            <img src="profile-large.jpg" alt="Profile Picture" class="img-fluid">
+            <div class="profile-info">
+                <h2>{{ app.session.get('user').name }}</h2>
+                <p><strong>Email:</strong> {{ app.session.get('user').email }}</p>
+                <p><strong>Phone:</strong> {{ app.session.get('user').phone }}</p>
+                <p><strong>Bio:</strong> {{ app.session.get('user').bio }}</p>
+            </div>
+        </div>
+        
+        <div class="profile-content">
+            <h3>Posts Created</h3>
+            {% for post in postsCreated %}
+                <div class="post">
+                    <p><strong>From:</strong> {{ post.from }}</p>
+                    <p><strong>To:</strong> {{ post.to }}</p>
+                    <p><strong>Departure:</strong> {{ post.departure }}</p>
+                    <p><strong>Seats Available:</strong> {{ post.seatsAvailable }}</p>
+                    <p><strong>Price:</strong> €{{ post.price }}</p>
+                </div>
+            {% endfor %}
+            
+            <h3>Posts Joined</h3>
+            {% for post in postsJoined %}
+                <div class="post">
+                    <p><strong>From:</strong> {{ post.from }}</p>
+                    <p><strong>To:</strong> {{ post.to }}</p>
+                    <p><strong>Departure:</strong> {{ post.departure }}</p>
+                    <p><strong>Seats Available:</strong> {{ post.seatsAvailable }}</p>
+                    <p><strong>Price:</strong> €{{ post.price }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

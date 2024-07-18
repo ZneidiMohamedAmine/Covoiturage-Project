@@ -12,15 +12,21 @@ use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class ProfileController extends AbstractController
 {
-    #[Route('/profile', name: 'app_profile')]
+    #[Route('/profile', name: 'app_profile' )]
     public function index(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $userId = 1;
         $userRepository = $entityManager->getRepository(User::class);
-        $user = $userRepository->find($userId);
+        //$userId = 1;
+        
+       // $user = $userRepository->find($userId);
+        
+        $user = $this->getUser();
+           
+        /** @var User $user */
 
         if (!$user) {
             throw $this->createNotFoundException('User not found');

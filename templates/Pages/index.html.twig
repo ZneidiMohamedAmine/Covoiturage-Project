@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home Page</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="styles.css" type="text/css" rel="stylesheet">
+    <style>
+        /* Custom styles specific to this page */
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+        .search-container {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .post {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .profile img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .name {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .time {
+            color: #666;
+        }
+        .details {
+            margin-top: 10px;
+        }
+        .reserve-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .reserve-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+  <div class="header">
+    {% if app.session.get('user') is not null %}
+      {# User is authenticated #}
+      <form action="{{ path('app_logout') }}" method="POST">
+        <button type="submit" class="btn btn-danger">Logout</button>
+      </form>
+    {% else %}
+      {# User is not authenticated #}
+      <form action="{{ path('app_login') }}" method="POST">
+        <button type="submit" class="btn btn-primary">Login</button>
+      </form>
+  <form action="{{ path('app_register') }}" method="POST">
+        <button type="submit" class="btn btn-success">Register</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <div class="search-container">
+    <form method="get" class="form-inline">
+      <input type="text" name="query" class="form-control mr-sm-2" placeholder="Search...">
+      <button type="submit" class="btn btn-outline-primary">Search</button>
+    </form>
+  </div>
+
+   <!-- Form to create a new Trajet -->
+    <div class="create-trajet-container">
+        <h2>Create New Trajet</h2>
+        <form id="createTrajetForm" action="{{ path('app_cree_trajet') }}" method="post">
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required><br><br>
+
+            <label for="time">Time:</label>
+            <input type="time" id="time" name="time" required><br><br>
+
+            <label for="villedebut">Starting City:</label>
+            <input type="text" id="villedebut" name="villedebut" required><br><br>
+
+            <label for="villedestination">Destination City:</label>
+            <input type="text" id="villedestination" name="villedestination" required><br><br>
+
+            <label for="ruedebut">Starting Street:</label>
+            <input type="text" id="ruedebut" name="ruedebut" required><br><br>
+
+            <label for="ruedestination">Destination Street:</label>
+            <input type="text" id="ruedestination" name="ruedestination" required><br><br>
+
+            <label for="seatsoccupied">Seats Occupied:</label>
+            <input type="number" id="seatsoccupied" name="seatsoccupied" required><br><br>
+
+            <label for="seatsavailable">Seats Available:</label>
+            <input type="number" id="seatsavailable" name="seatsavailable" required><br><br>
+
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" step="0.01" required><br><br>
+
+            <button type="submit" class="btn btn-primary">Create Trajet</button>
+        </form>
+    </div>
+
+
+      <h2>Available Trips</h2>
+      <ul>
+        {% for trip in trajets %}
+          <li>
+            <strong>Date:</strong> {{ trip.date }} <br>
+            <strong>Time:</strong> {{ trip.time }} <br>
+            <strong>Seats Available:</strong> {{ trip.seatsAvailable }} <br>
+            <strong>Seats Occupied:</strong> {{ trip.seatsOccupied }} <br>
+            <strong>Price:</strong> {{ trip.price }} <br>
+            <strong>Debut Ville:</strong> {{ trip.debutVille }} <br>
+            <strong>Debut Rue:</strong> {{ trip.debutRue }} <br>
+            <strong>Destination Ville:</strong> {{ trip.destinationVille }} <br>
+            <strong>Destination Rue:</strong> {{ trip.destinationRue }} <br>
+          </li>
+        {% else %}
+          <li>No trips available.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+</body>
+</html>

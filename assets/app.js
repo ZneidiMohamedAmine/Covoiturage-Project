@@ -8,7 +8,70 @@ import './bootstrap.js';
  */
 import './styles/app.css';
 
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Example state for authentication
+  const [user, setUser] = useState(null); // State to store user data
+
+  useEffect(() => {
+    // Example: Check authentication status or fetch user data from session
+    // Replace with actual authentication logic
+    const userFromSession = {
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      phone: '123-456-7890',
+      bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    };
+
+    setUser(userFromSession);
+    setIsLoggedIn(!!userFromSession); // Update isLoggedIn based on user session
+  }, []);
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    // Example: Perform logout logic (clear session, redirect, etc.)
+    setUser(null);
+    setIsLoggedIn(false);
+  };
+
+  const handleLogin = (username, password) => {
+    // Example: Perform login logic (API call, validation, etc.)
+    console.log('Logging in with:', username, password);
+    // Simulate successful login
+    setUser({
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      phone: '123-456-7890',
+      bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    });
+    setIsLoggedIn(true);
+  };
+
+  return (
+    <div className="app">
+      <div className="header">
+        {isLoggedIn ? (
+          <form onSubmit={handleLogout}>
+            <button type="submit">Logout</button>
+          </form>
+        ) : (
+          <>
+            <LoginForm onLogin={handleLogin} />
+            <form action="/register" method="POST">
+              <button type="submit" value="register">Register</button>
+            </form>
+          </>
+        )}
+      </div>
+
+      {isLoggedIn && <ProfilePage user={user} />}
+    </div>
+  );
+};
+
+export default App;
+
+
 
 registerReactControllerComponents();
 

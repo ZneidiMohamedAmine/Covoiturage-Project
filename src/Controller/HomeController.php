@@ -25,6 +25,7 @@ class HomeController extends AbstractController
         if (!$trip) {
             throw $this->createNotFoundException('No trip found for id 1');
         }
+        
 
         // Trip data array
         $tripArray = $trip->findAllLessThanToday();
@@ -48,8 +49,8 @@ class HomeController extends AbstractController
         }
 
         
-        return $this->render('home/login.html.twig', [
-            'controller_name' => 'HomeController','address' => $tripDetails,
+        return $this->render('Pages/index.html.twig', [
+            'trajets' => $tripDetails,
         ]);
     }
 }
