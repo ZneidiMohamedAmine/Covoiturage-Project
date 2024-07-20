@@ -24,17 +24,17 @@
                         <h2 class="text-center">User Registration</h2>
                     </div>
                     <div class="card-body">
-                        {% if error is not empty %}
-                            <div class="error-message">
-                                <ul>
-                                    {% for err in error %}
-                                        <li>{{ err }}</li>
-                                    {% endfor %}
-                                </ul>
+
+                        <form id="register-form">
+                            {% if error is not empty %}
+                            <div class="alert alert-danger">
+                              <ul>
+                                {% for message in error %}
+                                  <li>{{ message }}</li>
+                                {% endfor %}
+                              </ul>
                             </div>
-                        {% endif %}
-                        
-                        <form action="{{ path('app_register') }}" method="post">
+                          {% endif %}
                             <div class="form-group">
                                 <label for="firstname">First Name:</label>
                                 <input type="text" class="form-control" id="firstname" name="firstname" required>
@@ -101,5 +101,56 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const dataForm = document.getElementById('register-form');
+      
+          dataForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+      
+            const formData = new FormData(dataForm); // Create a FormData object from the form
+            const jsonData = {}; // Create an empty object
+      
+            // Populate the jsonData object with the form data
+            formData.forEach((value, key) => {
+              jsonData[key] = value;
+            });
+      
+            console.log('Sending data:', jsonData); // Debugging line
+      
+            try {
+              const response = await fetch("{{ path('app_register') }}", {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json', // Important: Set the Content-Type header
+                },
+                body: JSON.stringify(jsonData), // Convert jsonData to a JSON string
+              });
+      
+              const responseData = await response.json();
+      
+              if (!response.ok) {
+                throw new Error('Network response was not ok: ' + JSON.stringify(responseData));
+              }
+      
+              console.log('Success:', responseData); // Handle success response
+      
+              // Check if response contains success message or status
+              if (responseData.message === 'Login successful') {
+                // Redirect to profile or another page
+                console.log(responseData.id);
+                
+                window.location.href = "{{ path('app_profile') }}?userId=" + responseData.id;  // Example redirect
+              } else {
+                // Show error message
+                alert('Login failed: ' + (responseData.error ? responseData.error.join(', ') : 'Unknown error'));
+              }
+            } catch (error) {
+              console.error('Error:', error); // Handle error response
+              alert('An error occurred: ' + error.message); // Display error to user
+            }
+          });
+        });
+      </script>
 </body>
 </html>

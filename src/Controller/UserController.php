@@ -21,44 +21,48 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class UserController extends AbstractController
 {
     
-    #[Route('/login', name: 'app_login', methods: ['POST', 'GET'])]
-    public function login(Request $request, EntityManagerInterface $entityManager,Security $security): Response
+    #[Route('/login', name: 'app_login', methods: ['POST'])]
+    public function login(Request $request, EntityManagerInterface $entityManager, Security $security): Response
     {
         $error = []; // Initialize an empty array for errors
+    
+        // Check if the request content type is JSON
+        if ($request->headers->get('Content-Type') === 'application/json') {
+            $data = json_decode($request->getContent(), true);
+    
+            if ($data === null) {
+                return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+            }
+    
+            // Access email and password from the data array
+            $email = isset($data['email']) ? $data['email'] : '';
+            $password = isset($data['password']) ? $data['password'] : '';
 
-       // if(isset($_POST["submit"]))
-      //  {
     
-        $data = json_decode($request->getContent(), true);
-    
-        if ($data === null) {
-            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
-        }
-    
-        // Access email and password from the data array (assuming keys exist)
-        $email = isset($data['email']) ? $data['email'] : null;
-        $password = isset($data['password']) ? $data['password'] : null;
+         
     
         if (!$email || !$password) {
-            $error['general'] = 'Missing email or password in request.';
+            $error[] = 'Missing email or password in request.';
             return $this->render("Pages/login.html.twig", ['error' => $error]);
         }
     
-        $hashedPassword = // Hashing logic (replace with your password hashing logic)
+        // Hashing logic (replace with your password hashing logic)
+        //$hashedPassword = password_hash($password, PASSWORD_BCRYPT);
     
         $userRepository = $entityManager->getRepository(User::class);
-        $user = $userRepository->findBy(['email' => $email, 'password' => $password]);
-        
+        $user = $userRepository->findOneBy(['email' => $email, 'password' => $password]);
     
         if ($user) {
-            return $this->redirectToRoute('app_profile');
+            return new JsonResponse(['message' => 'Login successful', 'id' => $user->getId()], Response::HTTP_OK);
         } else {
-            $error['general'] = 'Invalid email or password.';
-            
+            return new JsonResponse(['error' => ['Invalid email or password.']], Response::HTTP_BAD_REQUEST);
         }
-   // }
+    }
+
     return $this->render("Pages/login.html.twig", ['error' => $error]);
     }
+    
+    
     
     
     
@@ -77,17 +81,24 @@ class UserController extends AbstractController
     {
         $error = [];
 
-        if ($request->isMethod('POST') && isset($_POST["submit"])) {
-            $firstname = $request->request->get('firstname');
-            $lastname = $request->request->get('lastname');
-            $email = $request->request->get('email');
-            $birthdate = new \DateTime($request->request->get('birthdate'));
-            $gender = $request->request->get('gender');
-            $role = $request->request->get('role');
-            $driverLicense = (bool) $request->request->get('driver_license');
-            $cin = $request->request->get('cin');
-            $address = $request->request->get('address');
-            $password = $request->request->get('password');
+        if ($request->headers->get('Content-Type') === 'application/json') {
+        $data = json_decode($request->getContent(), true);
+    
+        if ($data === null) {
+            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);    
+    }
+
+        
+            $firstname = $data['firstname'] ?? '';
+            $lastname = $data['lastname'] ?? '';
+            $email = $data['email'] ?? '';
+            $birthdate = new \DateTime($data['birthdate']);
+            $gender = $data['gender'] ?? '';
+            $role = $data['role'] ?? '';
+            $driverLicense = (bool) $data['driver_license'];
+            $cin = $data['cin'] ?? '';
+            $address = $data['address'] ?? '';
+            $password = $data['password'] ?? '';
 
             try {
                 // Create new User entity
@@ -96,25 +107,28 @@ class UserController extends AbstractController
                 $user->setFirstName($firstname);
                 $user->setLastName($lastname);
                 $user->setBirthDate($birthdate);
+                $user->setEmail($email);
                 $user->setAddress($address); // Assuming Address is a string
                 $user->setGender($gender);
                 $user->setDriverLisence($driverLicense);
                 $user->setPhotoAdress('default.jpg');
 
                 // Hash the password before setting it
-                $hashedPassword = $passwordHasher->hashPassword($user, $password);
-                $user->setPassword($hashedPassword);
+                //$hashedPassword = $passwordHasher->hashPassword($user, $password);
+                $user->setPassword($password);
 
                 // Persist user to database
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                // Redirect to profile page on successful registration
-                return $this->redirectToRoute('app_profile');
+                return new JsonResponse(['message' => 'Registration successful','id' => $user->getId()], Response::HTTP_OK);
+                
             } catch (\Exception $e) {
                 $error[] = "Failed to register user: " . $e->getMessage();
+                return new JsonResponse(['message' => 'Fail'], Response::HTTP_FAILED_DEPENDENCY);
             }
         }
+        $error[] = "We Failed"; 
 
         return $this->render('Pages/register.html.twig', [
             'error' => $error,

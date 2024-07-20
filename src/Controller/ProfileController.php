@@ -20,11 +20,13 @@ class ProfileController extends AbstractController
     public function index(Request $request, EntityManagerInterface $entityManager): Response
     {
         $userRepository = $entityManager->getRepository(User::class);
-        //$userId = 1;
+        //$userId = 4;
+        $userId = $request->query->get('userId');
+       
         
-       // $user = $userRepository->find($userId);
+         $user = $userRepository->find($userId);
         
-        $user = $this->getUser();
+       // $user = $this->getUser();
            
         /** @var User $user */
 
