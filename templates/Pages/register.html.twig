@@ -118,7 +118,7 @@
       
             console.log('Sending data:', jsonData); // Debugging line
       
-            try {
+            
               const response = await fetch("{{ path('app_register') }}", {
                 method: 'POST',
                 headers: {
@@ -132,23 +132,23 @@
               if (!response.ok) {
                 throw new Error('Network response was not ok: ' + JSON.stringify(responseData));
               }
-      
-              console.log('Success:', responseData); // Handle success response
-      
-              // Check if response contains success message or status
-              if (responseData.message === 'Login successful') {
-                // Redirect to profile or another page
-                console.log(responseData.id);
-                
-                window.location.href = "{{ path('app_profile') }}";  // Example redirect
-              } else {
-                // Show error message
-                alert('Login failed: ' + (responseData.error ? responseData.error.join(', ') : 'Unknown error'));
-              }
-            } catch (error) {
-              console.error('Error:', error); // Handle error response
-              alert('An error occurred: ' + error.message); // Display error to user
-            }
+
+            
+
+            // Use data from the first response to make the second request
+            const Token = responseData.token; 
+
+            const secondResponse = await fetch("{{ path('app_profile') }}", {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${Token}`
+                    
+                }
+                // If you need to send a body with the second request
+            });
+
+            window.location.href = "{{ path('app_profile') }}";
+  
           });
         });
       </script>

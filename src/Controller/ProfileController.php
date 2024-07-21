@@ -39,7 +39,8 @@ class ProfileController extends AbstractController
 
        
         
-         $user = $userRepository->find(4);
+         //$user = $userRepository->find(4);
+         $user = $this->getUser();
          
         
        // $user = $this->getUser();
@@ -158,9 +159,9 @@ class ProfileController extends AbstractController
     #[Route('/profile/comment', name: 'app_comment_profile')]
     public function comment(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $userId = 2;
         $userRepository = $entityManager->getRepository(User::class);
-        $user = $userRepository->find($userId);
+
+        $user = $this->getUser();
 
         if (!$user) {
             throw $this->createNotFoundException('User not found');
@@ -172,7 +173,7 @@ class ProfileController extends AbstractController
             return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
-        $commenteduser = $villedebut = $data['commenteduserid'] ?? null;
+        $commenteduser =  $data['commenteduserid'] ?? null;
 
         if ($commenteduser == null) {
             throw $this->createNotFoundException('User not found');
@@ -221,7 +222,7 @@ class ProfileController extends AbstractController
         $CommentRepository = $entityManager->getRepository(Comment::class);
         $userRepository = $entityManager->getRepository(User::class);
         
-        $user = $userRepository->find(1);
+        $user = $this->getUser();
         $commentodelete = $CommentRepository->find($id);   
 
         if($commentodelete->getcommenterId() == $user)
@@ -254,7 +255,7 @@ class ProfileController extends AbstractController
         $CommentRepository = $entityManager->getRepository(Comment::class);
         $userRepository = $entityManager->getRepository(User::class);
         
-        $user = $userRepository->find(2);
+        $user = $this->getUser();
         $commentomodifier = $CommentRepository->find($id);
 
         $nbrstar = htmlspecialchars($data['nbrstar'] ?? null);

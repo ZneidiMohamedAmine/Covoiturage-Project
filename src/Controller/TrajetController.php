@@ -50,9 +50,8 @@ class TrajetController extends AbstractController
             if ($userId === null) {
                 return new JsonResponse(['error' => 'User ID not found'], Response::HTTP_BAD_REQUEST);
             }*/
-            $userId=1;
-            $repository = $entityManager->getRepository(User::class);
-            $user = $repository->find($userId);
+
+            $user = $this->getUser();
             
 
             if (!$date || !$time || !$villedebut || !$villedestination || !$ruedebut || !$ruedestination || $seatsoccupied === null || $seatsavailable === null || $price === null) {
@@ -97,7 +96,7 @@ class TrajetController extends AbstractController
     {
         // Retrieval of the ID of the post and check if it is within the ones the user posted
             /** @var User $user */
-           // $user = $this->getUser();
+            $user = $this->getUser();
 
            $data = json_decode($request->getContent(), true);
 
@@ -109,10 +108,9 @@ class TrajetController extends AbstractController
        
            try {
                // Retrieve the current user (you may need to adjust this based on your authentication logic)
-               $userId = 1; // Replace with your actual user ID retrieval logic
-               $repository = $entityManager->getRepository(User::class);
+              
                /** @var User $user */
-               $user = $repository->find($userId);
+               
        
                // Retrieve the existing Trajet entity
                $trajetRepository = $entityManager->getRepository(Trajet::class);
@@ -194,9 +192,8 @@ class TrajetController extends AbstractController
 
     try {
         // Retrieve the current user (you may need to adjust this based on your authentication logic)
-        $userId = 1; // Replace with your actual user ID retrieval logic
-        $repository = $entityManager->getRepository(User::class);
-        $user = $repository->find($userId);
+        
+        $user = $this->getUser();
 
         // Retrieve the Trajet entity
         $trajetRepository = $entityManager->getRepository(Trajet::class);

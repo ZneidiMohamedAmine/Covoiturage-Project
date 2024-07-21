@@ -33,15 +33,13 @@ class ReservationController extends AbstractController
         $trajet = $trajetRepository->find($trajetId);
         $trajetplaceoccupe = $trajet->getSeatsAvailable();
 
-        $userId=1;
-        $repository = $entityManager->getRepository(User::class);
-        $user = $repository->find($userId);
+        $user = $this->getUser();
 
         // Check if the user has already reserved this trajet
         $reservationRepository = $entityManager->getRepository(Reservation::class);
         $existingReservation = $reservationRepository->findOneBy([
             'idtrajet' => $trajetId,
-            'iduser' => $userId,
+            'iduser' => $user->getUserIdentifier(),
         ]);
 
         if ($existingReservation) {
@@ -51,34 +49,30 @@ class ReservationController extends AbstractController
         if ($trajetplaceoccupe <= 0) {
             return new JsonResponse(['error' => 'Places are full'], Response::HTTP_CONFLICT);
         }
-       
+
+
+        try {
+
+            $reservation = new Reservation();
+            $reservation->setIdtrajet($trajet);
+            $reservation->setIduser($user);
+            $entityManager->persist($reservation);
+
+            $trajet->setSeatsAvailable($trajet->getSeatsAvailable() - 1);
+            $trajet->setSeatsOccupied($trajet->getSeatsOccupied() + 1);
+            $entityManager->persist($trajet);
 
 
 
 
-
-        try{
-
-        $reservation = new Reservation();
-        $reservation->setIdtrajet($trajet);
-        $reservation->setIduser($user);
-        $entityManager->persist($reservation);
-
-        $trajet->setSeatsAvailable($trajet->getSeatsAvailable()-1);
-        $trajet->setSeatsOccupied($trajet->getSeatsOccupied()+1);
-        $entityManager->persist($trajet);
+            $entityManager->flush();
 
 
 
-
-        $entityManager->flush();
-
-
-
-        return new JsonResponse(['success' => 'Reservation created successfully'], Response::HTTP_CREATED);
-    } catch (\Exception $e) {
-        return new JsonResponse(['error' => 'Failed to create reservation: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-    }
+            return new JsonResponse(['success' => 'Reservation created successfully'], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Failed to create reservation: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     #[Route('/reservation/supprimer', name: 'app_supprimer_reservation')]
@@ -99,37 +93,31 @@ class ReservationController extends AbstractController
         /** @var Trajet $trajet */
         $trajet = $trajetRepository->find($trajetId);
 
-        $userId=1;
-        $repository = $entityManager->getRepository(User::class);
-        $user = $repository->find($userId);
+
+        $user = $this->getUser();
 
         // Check if the user has already reserved this trajet
         $reservationRepository = $entityManager->getRepository(Reservation::class);
         $existingReservation = $reservationRepository->findOneBy([
             'idtrajet' => $trajetId,
-            'iduser' => $userId,
+            'iduser' => $user->getUserIdentifier(),
         ]);
 
         if (!$existingReservation) {
             return new JsonResponse(['error' => 'User is not registred in this trajet'], Response::HTTP_CONFLICT);
         }
-       
 
+        try {
 
+            $entityManager->remove($existingReservation);
+            $trajet->setSeatsAvailable($trajet->getSeatsAvailable() + 1);
+            $trajet->setSeatsOccupied($trajet->getSeatsOccupied() - 1);
 
+            $entityManager->flush();
 
-
-        try{
-
-        $entityManager->remove($existingReservation);
-        $trajet->setSeatsAvailable($trajet->getSeatsAvailable() + 1);
-        $trajet->setSeatsOccupied($trajet->getSeatsOccupied() - 1);
-
-        $entityManager->flush();
-
-        return new JsonResponse(['success' => 'Reservation deleted successfully'], Response::HTTP_CREATED);
-    } catch (\Exception $e) {
-        return new JsonResponse(['error' => 'Failed to delete reservation: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-    }
+            return new JsonResponse(['success' => 'Reservation deleted successfully'], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Failed to delete reservation: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

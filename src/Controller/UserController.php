@@ -80,17 +80,13 @@ class UserController extends AbstractController
 
     return $this->render("Pages/login.html.twig", ['error' => $error]);
     }
-    
-    
-    
-    
-    
 
     
     #[Route('/logout', name: 'app_logout')]
-    public function logout(): void
+    public function logout(Security $security): Response
     {
-        throw new \Exception('This method can be blank - it will be intercepted by the logout key on your firewall');
+        $response = $security->logout(false);
+        return $this->redirectToRoute('app_home');
     }
 
   
@@ -140,14 +136,14 @@ class UserController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                return new JsonResponse(['message' => 'Registration successful','id' => $user->getId()], Response::HTTP_OK);
-                
+                $token = $this->jwtManager->create($user);
+                return new JsonResponse(['token' => $token], Response::HTTP_OK);                
             } catch (\Exception $e) {
                 $error[] = "Failed to register user: " . $e->getMessage();
                 return new JsonResponse(['message' => 'Fail'], Response::HTTP_FAILED_DEPENDENCY);
             }
         }
-        $error[] = "We Failed"; 
+         
 
         return $this->render('Pages/register.html.twig', [
             'error' => $error,
@@ -158,21 +154,21 @@ class UserController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        //if ($data === null) {
-          //  return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
-        //}
+        if ($data === null) {
+            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
 
-/*
+
 $email = htmlspecialchars($data['email'] ?? '', ENT_QUOTES, 'UTF-8');
 $driverLicense = isset($data['driver_license']) ? (bool) htmlspecialchars($data['driver_license'], ENT_QUOTES, 'UTF-8') : null;
 $address = htmlspecialchars($data['address'] ?? '', ENT_QUOTES, 'UTF-8');
 $password = htmlspecialchars($data['password'] ?? '', ENT_QUOTES, 'UTF-8');
 $comfirmpassword = htmlspecialchars($data['password'] ?? '', ENT_QUOTES, 'UTF-8');
 
-        $userId = 2;
+       // $userId = 2;
         $userRepository = $entityManager->getRepository(User::class);
-        /** @var User $user */
-     /*   $user = $userRepository->find($userId);
+        /** @var User $user  */
+        $user = $this->getUser();
 
         if($password == $comfirmpassword)
         {
@@ -187,8 +183,8 @@ $comfirmpassword = htmlspecialchars($data['password'] ?? '', ENT_QUOTES, 'UTF-8'
         } else{
             return new JsonResponse(['error' => 'Failed to modify Profile '], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        */
-        return $this->redirect("/login");
+        
+       
 
     }
 }
