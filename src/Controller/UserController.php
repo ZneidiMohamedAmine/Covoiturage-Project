@@ -21,7 +21,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class UserController extends AbstractController
 {
     
-    #[Route('/login', name: 'app_login', methods: ['POST'])]
+    #[Route('/login', name: 'app_login', methods: ['POST','GET'])]
     public function login(Request $request, EntityManagerInterface $entityManager, Security $security): Response
     {
         $error = []; // Initialize an empty array for errors
@@ -53,7 +53,7 @@ class UserController extends AbstractController
         $user = $userRepository->findOneBy(['email' => $email, 'password' => $password]);
     
         if ($user) {
-            return new JsonResponse(['message' => 'Login successful', 'id' => $user->getId()], Response::HTTP_OK);
+            return new JsonResponse(['message' => 'Login successful', 'id' => 1], Response::HTTP_OK);
         } else {
             return new JsonResponse(['error' => ['Invalid email or password.']], Response::HTTP_BAD_REQUEST);
         }
@@ -134,16 +134,16 @@ class UserController extends AbstractController
             'error' => $error,
         ]);
     }
-    #[Route('/user/modifier', name: 'app_register_modifier', methods: [ 'POST'])]
+    #[Route('/user/modifier', name: 'app_register_modifier', methods: [ 'POST','GET'])]
     public function registermodifier(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $data = json_decode($request->getContent(), true);
 
-        if ($data === null) {
-            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
-        }
+        //if ($data === null) {
+          //  return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        //}
 
-
+/*
 $email = htmlspecialchars($data['email'] ?? '', ENT_QUOTES, 'UTF-8');
 $driverLicense = isset($data['driver_license']) ? (bool) htmlspecialchars($data['driver_license'], ENT_QUOTES, 'UTF-8') : null;
 $address = htmlspecialchars($data['address'] ?? '', ENT_QUOTES, 'UTF-8');
@@ -153,7 +153,7 @@ $comfirmpassword = htmlspecialchars($data['password'] ?? '', ENT_QUOTES, 'UTF-8'
         $userId = 2;
         $userRepository = $entityManager->getRepository(User::class);
         /** @var User $user */
-        $user = $userRepository->find($userId);
+     /*   $user = $userRepository->find($userId);
 
         if($password == $comfirmpassword)
         {
@@ -163,10 +163,13 @@ $comfirmpassword = htmlspecialchars($data['password'] ?? '', ENT_QUOTES, 'UTF-8'
             $user->setPassword($password);
             $entityManager->persist($user);
             $entityManager->flush();
+            
             return new JsonResponse(['success' => 'Profile modified successfully'], Response::HTTP_OK);
         } else{
             return new JsonResponse(['error' => 'Failed to modify Profile '], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        */
+        return $this->redirect("/login");
 
     }
 }

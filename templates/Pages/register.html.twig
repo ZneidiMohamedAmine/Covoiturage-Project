@@ -140,7 +140,7 @@
                 // Redirect to profile or another page
                 console.log(responseData.id);
                 
-                window.location.href = "{{ path('app_profile') }}?userId=" + responseData.id;  // Example redirect
+                window.location.href = "{{ path('app_profile') }}";  // Example redirect
               } else {
                 // Show error message
                 alert('Login failed: ' + (responseData.error ? responseData.error.join(', ') : 'Unknown error'));

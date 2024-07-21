@@ -21,10 +21,12 @@ class ProfileController extends AbstractController
     {
         $userRepository = $entityManager->getRepository(User::class);
         //$userId = 4;
-        $userId = $request->query->get('userId');
+        //$userId = $request->query->get('userId');
+
        
         
-         $user = $userRepository->find($userId);
+         $user = $userRepository->find(4);
+         
         
        // $user = $this->getUser();
            
@@ -198,13 +200,14 @@ class ProfileController extends AbstractController
         }
         
 
-        $id = $data['id'] ?? null;
+        //$id = $data['id'] ?? null;
+        $id = 1;
 
 
         $CommentRepository = $entityManager->getRepository(Comment::class);
         $userRepository = $entityManager->getRepository(User::class);
         
-        $user = $userRepository->find(2);
+        $user = $userRepository->find(1);
         $commentodelete = $CommentRepository->find($id);   
 
         if($commentodelete->getcommenterId() == $user)

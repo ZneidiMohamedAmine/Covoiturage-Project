@@ -4,11 +4,6 @@ controllers:
         namespace: App\Controller
     type: attribute
 
-
-api:
-    path: /api
-    controller: App\Controller\DefaultController::api
-
 login_check:
     path:     /api/login_check
-    methods:  [POST]
+    
