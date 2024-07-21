@@ -94,7 +94,7 @@
   
         console.log('Sending data:', jsonData); // Debugging line
   
-        try {
+        
           const response = await fetch("{{ path('app_login') }}", {
             method: 'POST',
             headers: {
@@ -102,29 +102,31 @@
             },
             body: JSON.stringify(jsonData), // Convert jsonData to a JSON string
           });
-  
-          const responseData = await response.json();
-  
+          
+
           if (!response.ok) {
-            throw new Error('Network response was not ok: ' + JSON.stringify(responseData));
-          }
+                throw new Error('First request failed');
+            }
+
+            const firstData = await response.json();
+
+            // Use data from the first response to make the second request
+            const Token = firstData.token; 
+
+            const secondResponse = await fetch("{{ path('app_profile') }}", {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${Token}`
+                    
+                }
+                // If you need to send a body with the second request
+            });
+
+            window.location.href = "{{ path('app_profile') }}";
   
-          console.log('Success:', responseData); // Handle success response
+        
   
-          // Check if response contains success message or status
-          if (responseData.message === 'Login successful') {
-            // Redirect to profile or another page
-            console.log(responseData.id);
-            
-            window.location.href = "{{ path('app_profile') }}?userId=" + responseData.id;  // Example redirect
-          } else {
-            // Show error message
-            alert('Login failed: ' + (responseData.error ? responseData.error.join(', ') : 'Unknown error'));
-          }
-        } catch (error) {
-          console.error('Error:', error); // Handle error response
-          alert('An error occurred: ' + error.message); // Display error to user
-        }
+
       });
     });
   </script>

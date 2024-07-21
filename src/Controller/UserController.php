@@ -15,14 +15,31 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use App\Repository\UserRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 
 
-class UserController extends AbstractController
+
+
+class UserController extends AbstractController 
+
+
 {
+
+    private $jwtManager;
+    private $tokenStorageInterface;
+
+    public function __construct(TokenStorageInterface $tokenStorageInterface, JWTTokenManagerInterface $jwtManager)
+    {
+        $this->jwtManager = $jwtManager;
+        $this->tokenStorageInterface = $tokenStorageInterface;
+    }
+
+    
+
     
     #[Route('/login', name: 'app_login', methods: ['POST','GET'])]
-    public function login(Request $request, EntityManagerInterface $entityManager, Security $security): Response
+    public function login(Request $request, EntityManagerInterface $entityManager, Security $security,TokenStorageInterface $tokenStorageInterface, JWTTokenManagerInterface $jwtManager): Response
     {
         $error = []; // Initialize an empty array for errors
     
@@ -51,9 +68,11 @@ class UserController extends AbstractController
     
         $userRepository = $entityManager->getRepository(User::class);
         $user = $userRepository->findOneBy(['email' => $email, 'password' => $password]);
+        
     
         if ($user) {
-            return new JsonResponse(['message' => 'Login successful', 'id' => 1], Response::HTTP_OK);
+            $token = $this->jwtManager->create($user);
+            return new JsonResponse(['token' => $token], Response::HTTP_OK);
         } else {
             return new JsonResponse(['error' => ['Invalid email or password.']], Response::HTTP_BAD_REQUEST);
         }

@@ -13,12 +13,26 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
 class ProfileController extends AbstractController
 {
+    private $jwtManager;
+    private $tokenStorageInterface;
+
+    public function __construct(TokenStorageInterface $tokenStorageInterface, JWTTokenManagerInterface $jwtManager)
+    {
+        $this->jwtManager = $jwtManager;
+        $this->tokenStorageInterface = $tokenStorageInterface;
+    }
     #[Route('/profile', name: 'app_profile' )]
     public function index(Request $request, EntityManagerInterface $entityManager): Response
     {
+        
+    
+        
+    
         $userRepository = $entityManager->getRepository(User::class);
         //$userId = 4;
         //$userId = $request->query->get('userId');
