@@ -109,9 +109,14 @@
             }
 
             const firstData = await response.json();
+            alert(firstData.message);
+            console.log(firstData.jwt);
+            alert(firstData.jwt);
+            
+
 
             // Use data from the first response to make the second request
-            const Token = firstData.token; 
+            const Token = firstData.jwt; 
 
             const secondResponse = await fetch("{{ path('app_profile') }}", {
                 method: 'POST',

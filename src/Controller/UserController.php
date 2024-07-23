@@ -16,6 +16,7 @@ use App\Repository\UserRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 
 
@@ -38,48 +39,54 @@ class UserController extends AbstractController
     
 
     
-    #[Route('/login', name: 'app_login', methods: ['POST','GET'])]
-    public function login(Request $request, EntityManagerInterface $entityManager, Security $security,TokenStorageInterface $tokenStorageInterface, JWTTokenManagerInterface $jwtManager): Response
+    #[Route('/login', name: 'app_login', methods: ['POST'])]
+    public function login(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $error = []; // Initialize an empty array for errors
-    
-        // Check if the request content type is JSON
         if ($request->headers->get('Content-Type') === 'application/json') {
             $data = json_decode($request->getContent(), true);
-    
+
             if ($data === null) {
                 return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
             }
-    
-            // Access email and password from the data array
-            $email = isset($data['email']) ? $data['email'] : '';
-            $password = isset($data['password']) ? $data['password'] : '';
 
-    
-         
-    
-        if (!$email || !$password) {
-            $error[] = 'Missing email or password in request.';
-            return $this->render("Pages/login.html.twig", ['error' => $error]);
+            $email = $data['email'] ?? '';
+            $password = $data['password'] ?? '';
+            
+
+            if (!$email || !$password) {
+                return new JsonResponse(['error' => 'Missing email or password in request.'], Response::HTTP_BAD_REQUEST);
+            }
+
+            
+
+            $userRepository = $entityManager->getRepository(User::class);
+            
+            $user = $userRepository->findOneBy(['email' => $email, 'password' => $password]);
+
+            if (!$user) {
+                return new JsonResponse(['error' => 'Invalid email or password.'], Response::HTTP_BAD_REQUEST);
+            }
+
+            dump($email);
+            dump($password);
+
+            $payload = ['name' => 'test', 'email' => $email]; // Adjust payload as needed
+
+            try {
+                // Generate JWT token
+                $jwt = $this->jwtManager->createFromPayload($user, $payload);
+                return new JsonResponse(['jwt' => $jwt, 'message' => 'Login successful'], JsonResponse::HTTP_OK);
+            } catch (\Exception $e) {
+                return $this->render('Pages/login.html.twig',['error' => $e->getMessage()]);
+            }
         }
-    
-        // Hashing logic (replace with your password hashing logic)
-        //$hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-    
-        $userRepository = $entityManager->getRepository(User::class);
-        $user = $userRepository->findOneBy(['email' => $email, 'password' => $password]);
+        return $this->render('Pages/login.html.twig',['error' => 'Invalid email or password']);
         
-    
-        if ($user) {
-            $token = $this->jwtManager->create($user);
-            return new JsonResponse(['token' => $token], Response::HTTP_OK);
-        } else {
-            return new JsonResponse(['error' => ['Invalid email or password.']], Response::HTTP_BAD_REQUEST);
-        }
+
+       
     }
 
-    return $this->render("Pages/login.html.twig", ['error' => $error]);
-    }
+
 
     
     #[Route('/logout', name: 'app_logout')]
@@ -109,7 +116,6 @@ class UserController extends AbstractController
             $email = $data['email'] ?? '';
             $birthdate = new \DateTime($data['birthdate']);
             $gender = $data['gender'] ?? '';
-            $role = $data['role'] ?? '';
             $driverLicense = (bool) $data['driver_license'];
             $cin = $data['cin'] ?? '';
             $address = $data['address'] ?? '';
@@ -127,6 +133,7 @@ class UserController extends AbstractController
                 $user->setGender($gender);
                 $user->setDriverLisence($driverLicense);
                 $user->setPhotoAdress('default.jpg');
+                $user->setStatus(true);
 
                 // Hash the password before setting it
                 //$hashedPassword = $passwordHasher->hashPassword($user, $password);
@@ -149,7 +156,7 @@ class UserController extends AbstractController
             'error' => $error,
         ]);
     }
-    #[Route('/user/modifier', name: 'app_register_modifier', methods: [ 'POST','GET'])]
+    #[Route('/user/modifier', name: 'app_register_modifier', methods: [ 'POST'])]
     public function registermodifier(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -186,5 +193,19 @@ $comfirmpassword = htmlspecialchars($data['password'] ?? '', ENT_QUOTES, 'UTF-8'
         
        
 
+    }
+
+    #[Route('/user/desactive', name: 'app_register_desactive', methods: [ 'POST'])]
+    public function registerdesacttiver(Request $request, EntityManagerInterface $entityManager, Security $security): Response
+    {
+        /** @var User $user  */
+        $user = $this->getUser();
+
+        $user->setStatus(false);
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        $security->logout(false);
+        return $this->redirectToRoute('app_home');
     }
 }

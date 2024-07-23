@@ -60,8 +60,8 @@ class ProfileController extends AbstractController
 
         $tripRepository = $entityManager->getRepository(Trajet::class);
         $tripArray = $tripRepository->findAllLessThanToday();
-        $tripcreated = $tripRepository->findAllCreated(1);
-        $tripJoined = $tripRepository->findAllJoined(1);
+        $tripcreated = $tripRepository->findAllCreated((int)$user->getId());
+        $tripJoined = $tripRepository->findAllJoined((int)$user->getId());
 
         $addressRepository = $entityManager->getRepository(Address::class);
 
@@ -275,4 +275,5 @@ class ProfileController extends AbstractController
         return new JsonResponse(['error' => 'comment n est pas modifier ' ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
     }
+
 }

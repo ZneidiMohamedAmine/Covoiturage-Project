@@ -16,7 +16,7 @@ security:
             json_login:
                 username_path: email
                 password_path: password
-                check_path: /login
+                check_path: /login_check
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
@@ -43,9 +43,10 @@ security:
     access_control:
     # - { path: ^/admin, roles: ROLE_ADMIN }
     - { path: ^/profile, roles: ROLE_USER }
-    - { path: ^/api/login, roles: PUBLIC_ACCESS }
+    # - { path: ^/api/login, roles: PUBLIC_ACCESS }
     - { path: ^/, roles: PUBLIC_ACCESS }
-    - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+    - { path: ^/api,       roles: ROLE_ADMIN }
+    - { path: ^/control_panel,  roles: ROLE_ADMIN }
 
 when@test:
     security:

@@ -62,6 +62,43 @@
         .reserve-btn:hover {
             background-color: #0056b3;
         }
+
+        #post {
+      width: 60%;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #post h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    #post ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #post ul li {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #post ul li:last-child {
+      border-bottom: none;
+    }
+
+    #post ul li strong {
+      color: #555;
+    }
+
+    #post ul li br {
+      margin-bottom: 10px;
+    }
     </style>
 </head>
 <body>
@@ -71,6 +108,9 @@
       <form action="{{ path('app_logout') }}" method="POST">
         <button type="submit" class="btn btn-danger">Logout</button>
       </form>
+      <form action="{{ path('app_control_panel') }}" method="POST">
+        <button type="submit" class="btn btn-success">Contol Panel</button>
+      </form>
     {% else %}
       {# User is not authenticated #}
       <form action="{{ path('app_login') }}" method="POST">
@@ -78,6 +118,9 @@
       </form>
   <form action="{{ path('app_register') }}" method="POST">
         <button type="submit" class="btn btn-success">Register</button>
+      </form>
+      <form action="{{ path('app_control_panel') }}" method="POST">
+        <button type="submit" class="btn btn-success">Contol Panel</button>
       </form>
     {% endif %}
   </div>
@@ -92,7 +135,7 @@
    <!-- Form to create a new Trajet -->
     <div class="create-trajet-container">
         <h2>Create New Trajet</h2>
-        <form id="createTrajetForm" action="{{ path('app_cree_trajet') }}" method="post">
+        <form id="trajet-form" >
             <label for="date">Date:</label>
             <input type="date" id="date" name="date" required><br><br>
 
@@ -123,8 +166,43 @@
             <button type="submit" class="btn btn-primary">Create Trajet</button>
         </form>
     </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const dataForm = document.getElementById('trajet-form');
+    
+        dataForm.addEventListener('submit', async (event) => {
+          event.preventDefault(); // Prevent default form submission
+    
+          const formData = new FormData(dataForm); // Create a FormData object from the form
+          const jsonData = {}; // Create an empty object
+    
+          // Populate the jsonData object with the form data
+          formData.forEach((value, key) => {
+            jsonData[key] = value;
+          });
+    
+          console.log('Sending data:', jsonData); // Debugging line
+    
+          
+            const response = await fetch("{{ path('app_cree_trajet') }}", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json', // Important: Set the Content-Type header
+              },
+              body: JSON.stringify(jsonData), // Convert jsonData to a JSON string
+            });
+            
+  
+            if (!response.ok) {
+                  throw new Error('First request failed');
+              }
+  
 
+        });
+      });
+    </script>
 
+    <div id="post">
       <h2>Available Trips</h2>
       <ul>
         {% for trip in trajets %}
@@ -139,10 +217,14 @@
             <strong>Destination Ville:</strong> {{ trip.destinationVille }} <br>
             <strong>Destination Rue:</strong> {{ trip.destinationRue }} <br>
           </li>
+          <form action="{{ path('app_cree_reservation') }}" method="POST">
+            <button type="submit" class="btn btn-success">Reserver</button>
+          </form>
         {% else %}
           <li>No trips available.</li>
         {% endfor %}
       </ul>
+    </div>
     </div>
   </div>
 

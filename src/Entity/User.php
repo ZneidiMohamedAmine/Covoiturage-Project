@@ -82,6 +82,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'commentedId')]
     private Collection $commentgiven;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $status = null;
+
     public function __construct()
     {
         $this->userTrajet = new ArrayCollection();
@@ -377,6 +380,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $commentgiven->setCommentedId(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isStatus(): ?bool
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?bool $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }

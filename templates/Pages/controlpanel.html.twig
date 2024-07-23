@@ -20,11 +20,11 @@
                 {% for user in users %}
                 <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">Username: {{ user.username }}</h5>
-                        <p class="card-text">Email: {{ user.email }}</p>
-                        <button class="btn btn-primary mr-2" onclick="location.href='/user/profile/{{ user.id }}'">View Profile</button>
-                        <button class="btn btn-warning mr-2" onclick="deactivateUser({{ user.id }})">Deactivate User</button>
-                        <button class="btn btn-danger" onclick="deleteUser({{ user.id }})">Delete User</button>
+                        <h5 class="card-title">Username: {{ user.FirstName }}</h5>
+                        <p class="card-text">Email: {{ user.Email }}</p>
+                        <button class="btn btn-primary mr-2" onclick="">View Profile</button>
+                        <button class="btn btn-warning mr-2" onclick="">Deactivate User</button>
+                        <button class="btn btn-danger" onclick="">Delete User</button>
                     </div>
                 </div>
                 {% endfor %}
