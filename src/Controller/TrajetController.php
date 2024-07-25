@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+#[Route("/api", name: 'api_')]
 class TrajetController extends AbstractController
 {
     #[Route('/trajet', name: 'app_cree_trajet', methods: ['POST'])]
@@ -51,7 +52,9 @@ class TrajetController extends AbstractController
                 return new JsonResponse(['error' => 'User ID not found'], Response::HTTP_BAD_REQUEST);
             }*/
 
-            $user = $this->getUser();
+            //$user = $this->getUser();
+            $userrep= $entityManager->getRepository(User::class);
+            $user = $userrep->find(4);
             
 
             if (!$date || !$time || !$villedebut || !$villedestination || !$ruedebut || !$ruedestination || $seatsoccupied === null || $seatsavailable === null || $price === null) {

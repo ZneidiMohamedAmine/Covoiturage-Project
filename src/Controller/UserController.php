@@ -18,15 +18,9 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-
-
-
-
+#[Route("/api", name: 'api_')]
 class UserController extends AbstractController 
-
-
 {
-
     private $jwtManager;
     private $tokenStorageInterface;
 
@@ -36,9 +30,6 @@ class UserController extends AbstractController
         $this->tokenStorageInterface = $tokenStorageInterface;
     }
 
-    
-
-    
     #[Route('/login', name: 'app_login', methods: ['POST'])]
     public function login(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -58,7 +49,6 @@ class UserController extends AbstractController
             }
 
             
-
             $userRepository = $entityManager->getRepository(User::class);
             
             $user = $userRepository->findOneBy(['email' => $email, 'password' => $password]);
@@ -75,20 +65,16 @@ class UserController extends AbstractController
             try {
                 // Generate JWT token
                 $jwt = $this->jwtManager->createFromPayload($user, $payload);
-                return new JsonResponse(['jwt' => $jwt, 'message' => 'Login successful'], JsonResponse::HTTP_OK);
+                return new JsonResponse(['jwt' => $jwt, 'message' => 'Login successful'], Response::HTTP_OK);
             } catch (\Exception $e) {
                 return $this->render('Pages/login.html.twig',['error' => $e->getMessage()]);
             }
         }
         return $this->render('Pages/login.html.twig',['error' => 'Invalid email or password']);
-        
 
-       
     }
 
 
-
-    
     #[Route('/logout', name: 'app_logout')]
     public function logout(Security $security): Response
     {
@@ -96,7 +82,6 @@ class UserController extends AbstractController
         return $this->redirectToRoute('app_home');
     }
 
-  
 
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
     public function register(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
@@ -109,8 +94,7 @@ class UserController extends AbstractController
         if ($data === null) {
             return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);    
     }
-
-        
+  
             $firstname = $data['firstname'] ?? '';
             $lastname = $data['lastname'] ?? '';
             $email = $data['email'] ?? '';

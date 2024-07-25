@@ -6,4 +6,11 @@ controllers:
 
 login_check:
     path:     /login_check
+
+app_react:
+    path: /{reactRouting}
+    controller: App\Controller\DefaultController::index
+    requirements:
+        reactRouting: .*
+
     

@@ -24,7 +24,7 @@ $now = new \DateTime();
 $query = $entityManager->createQuery(
     'SELECT t
     FROM App\Entity\Trajet t
-    WHERE t.Date > :today
+    WHERE t.Date < :today
     OR (t.Date = :today AND t.Time < :time) 
     ORDER BY t.id ASC'
 )->setParameter('today', $now->format('Y-m-d'))

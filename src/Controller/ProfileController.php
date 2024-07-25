@@ -16,6 +16,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
+#[Route("/api", name: 'api_')]
 class ProfileController extends AbstractController
 {
     private $jwtManager;
@@ -26,6 +27,7 @@ class ProfileController extends AbstractController
         $this->jwtManager = $jwtManager;
         $this->tokenStorageInterface = $tokenStorageInterface;
     }
+    
     #[Route('/profile', name: 'app_profile' )]
     public function index(Request $request, EntityManagerInterface $entityManager): Response
     {
