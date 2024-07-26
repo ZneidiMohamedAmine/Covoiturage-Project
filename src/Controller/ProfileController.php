@@ -150,12 +150,12 @@ class ProfileController extends AbstractController
             
         }
 
-        return $this->render('home/profile.html.twig', [
-            'userinfo' => $userArray,
+        return new JsonResponse(['userinfo' => $userArray,
             'tripcreated' => $tripDetailsCreated,
             'tripjoined' => $tripDetailsJoined,
-            'comments' => $comments,
-        ]);
+            'comments' => $comments,], Response::HTTP_OK);  
+            
+        
     }
 
     #[Route('/profile/comment', name: 'app_comment_profile')]

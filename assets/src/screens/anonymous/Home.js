@@ -73,7 +73,7 @@ const Home = () => {
         <div>
             <div className="header">
                 {true /* Replace with actual authentication check */}
-                    <form action="/logout" method="POST">
+                    <form action="/api/logout" method="POST">
                         <button type="submit" className="btn btn-danger">Logout</button>
                     </form>
                     <form action="/control-panel" method="POST">

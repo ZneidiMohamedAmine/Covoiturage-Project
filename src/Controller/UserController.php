@@ -42,6 +42,9 @@ class UserController extends AbstractController
 
             $email = $data['email'] ?? '';
             $password = $data['password'] ?? '';
+
+            dump($email);
+            dump($password);
             
 
             if (!$email || !$password) {
@@ -57,8 +60,7 @@ class UserController extends AbstractController
                 return new JsonResponse(['error' => 'Invalid email or password.'], Response::HTTP_BAD_REQUEST);
             }
 
-            dump($email);
-            dump($password);
+            
 
             $payload = ['name' => 'test', 'email' => $email]; // Adjust payload as needed
 
@@ -67,10 +69,10 @@ class UserController extends AbstractController
                 $jwt = $this->jwtManager->createFromPayload($user, $payload);
                 return new JsonResponse(['jwt' => $jwt, 'message' => 'Login successful'], Response::HTTP_OK);
             } catch (\Exception $e) {
-                return $this->render('Pages/login.html.twig',['error' => $e->getMessage()]);
+                return new JsonResponse(['error' => 'invalid'], Response::HTTP_BAD_REQUEST);
             }
         }
-        return $this->render('Pages/login.html.twig',['error' => 'Invalid email or password']);
+        return new JsonResponse('Succes', Response::HTTP_OK);
 
     }
 
@@ -79,7 +81,7 @@ class UserController extends AbstractController
     public function logout(Security $security): Response
     {
         $response = $security->logout(false);
-        return $this->redirectToRoute('app_home');
+        return $this->redirectToRoute('/');
     }
 
 
