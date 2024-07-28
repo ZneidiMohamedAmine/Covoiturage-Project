@@ -62,8 +62,7 @@ const Register = () => {
 
       const token = responseData.token;
 
-      // Store the token in localStorage
-      localStorage.setItem('jwtToken', token);
+      
 
       await fetch('/api/profile', {
         method: 'POST',
@@ -72,7 +71,10 @@ const Register = () => {
         }
       });
 
-      window.location.href = '/profile';
+      // Store the token in localStorage
+      localStorage.setItem('jwtToken', token);
+
+      navigate('/profile');
     } catch (error) {
       console.error(error.message);
     }

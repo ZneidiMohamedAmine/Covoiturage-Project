@@ -100,6 +100,10 @@ const Login = () => {
                 />
                 <button type="submit" className="btn btn-primary">Login</button>
             </form>
+
+            <form action="/register" method="POST">
+                            <button type="submit" className="btn btn-success">Register</button>
+                        </form>
         </div>
     );
 };
