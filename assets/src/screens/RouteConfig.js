@@ -8,6 +8,7 @@ import Register from './anonymous/register';
 import Logout from './user/logout';
 import JoinedTrip from './user/JoinedTrip';
 
+
 const RoutesConfig = () => (
   <Routes>
     <Route path="/" element={<Home />} />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Modal, Button, Form } from 'react-bootstrap';
 
 const Home = () => {
     const [trajets, setTrajets] = useState([]);
@@ -15,24 +16,27 @@ const Home = () => {
         seatsavailable: '',
         price: ''
     });
+    const [showModal, setShowModal] = useState(false);
     const isAuthenticated = !!localStorage.getItem('jwtToken'); // Check if the JWT token is present
 
     useEffect(() => {
-        const fetchTrajets = async () => {
-            try {
-                const response = await fetch('/api/'); // Adjust the endpoint as needed
-                if (!response.ok) throw new Error('Failed to fetch trajets');
-                const data = await response.json();
-                setTrajets(data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+        
 
         fetchTrajets();
     }, []);
+
+    const fetchTrajets = async () => {
+        try {
+            const response = await fetch('/api/'); // Adjust the endpoint as needed
+            if (!response.ok) throw new Error('Failed to fetch trajets');
+            const data = await response.json();
+            setTrajets(data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
@@ -49,6 +53,9 @@ const Home = () => {
             });
 
             if (!response.ok) throw new Error('Failed to create trajet');
+
+           
+
             // Clear form data after successful submission or handle success state here
             setFormData({
                 date: '',
@@ -61,6 +68,10 @@ const Home = () => {
                 seatsavailable: '',
                 price: ''
             });
+
+            // Update the state with the new trajet
+            fetchTrajets();
+            setShowModal(false); // Close modal on success
         } catch (error) {
             setError(error.message);
         }
@@ -99,6 +110,9 @@ const Home = () => {
                         <form action="/logout" method="POST">
                             <button type="submit" className="btn btn-danger">Logout</button>
                         </form>
+                        <form action="/profile" method="POST">
+                            <button type="submit" className="btn btn-success">Profile</button>
+                        </form>
                         <form action="/yourtrip" method="POST">
                             <button type="submit" className="btn btn-success">Current Trip</button>
                         </form>
@@ -125,36 +139,67 @@ const Home = () => {
             {isAuthenticated && (
                 <div className="create-trajet-container">
                     <h2>Create New Trajet</h2>
-                    <form id="trajet-form" onSubmit={handleFormSubmit}>
-                        <label htmlFor="date">Date:</label>
-                        <input type="date" id="date" name="date" value={formData.date} onChange={handleInputChange} required /><br /><br />
+                    <Button variant="primary" onClick={() => setShowModal(true)}>
+                        Create New Trajet
+                    </Button>
 
-                        <label htmlFor="time">Time:</label>
-                        <input type="time" id="time" name="time" value={formData.time} onChange={handleInputChange} required /><br /><br />
+                    <Modal show={showModal} onHide={() => setShowModal(false)}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Create New Trajet</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form id="trajet-form" onSubmit={handleFormSubmit}>
+                                <Form.Group>
+                                    <Form.Label>Date:</Form.Label>
+                                    <Form.Control type="date" id="date" name="date" value={formData.date} onChange={handleInputChange} required />
+                                </Form.Group>
 
-                        <label htmlFor="villedebut">Starting City:</label>
-                        <input type="text" id="villedebut" name="villedebut" value={formData.villedebut} onChange={handleInputChange} required /><br /><br />
+                                <Form.Group>
+                                    <Form.Label>Time:</Form.Label>
+                                    <Form.Control type="time" id="time" name="time" value={formData.time} onChange={handleInputChange} required />
+                                </Form.Group>
 
-                        <label htmlFor="villedestination">Destination City:</label>
-                        <input type="text" id="villedestination" name="villedestination" value={formData.villedestination} onChange={handleInputChange} required /><br /><br />
+                                <Form.Group>
+                                    <Form.Label>Starting City:</Form.Label>
+                                    <Form.Control type="text" id="villedebut" name="villedebut" value={formData.villedebut} onChange={handleInputChange} required />
+                                </Form.Group>
 
-                        <label htmlFor="ruedebut">Starting Street:</label>
-                        <input type="text" id="ruedebut" name="ruedebut" value={formData.ruedebut} onChange={handleInputChange} required /><br /><br />
+                                <Form.Group>
+                                    <Form.Label>Destination City:</Form.Label>
+                                    <Form.Control type="text" id="villedestination" name="villedestination" value={formData.villedestination} onChange={handleInputChange} required />
+                                </Form.Group>
 
-                        <label htmlFor="ruedestination">Destination Street:</label>
-                        <input type="text" id="ruedestination" name="ruedestination" value={formData.ruedestination} onChange={handleInputChange} required /><br /><br />
+                                <Form.Group>
+                                    <Form.Label>Starting Street:</Form.Label>
+                                    <Form.Control type="text" id="ruedebut" name="ruedebut" value={formData.ruedebut} onChange={handleInputChange} required />
+                                </Form.Group>
 
-                        <label htmlFor="seatsoccupied">Seats Occupied:</label>
-                        <input type="number" id="seatsoccupied" name="seatsoccupied" value={formData.seatsoccupied} onChange={handleInputChange} required /><br /><br />
+                                <Form.Group>
+                                    <Form.Label>Destination Street:</Form.Label>
+                                    <Form.Control type="text" id="ruedestination" name="ruedestination" value={formData.ruedestination} onChange={handleInputChange} required />
+                                </Form.Group>
 
-                        <label htmlFor="seatsavailable">Seats Available:</label>
-                        <input type="number" id="seatsavailable" name="seatsavailable" value={formData.seatsavailable} onChange={handleInputChange} required /><br /><br />
+                                <Form.Group>
+                                    <Form.Label>Seats Occupied:</Form.Label>
+                                    <Form.Control type="number" id="seatsoccupied" name="seatsoccupied" value={formData.seatsoccupied} onChange={handleInputChange} required />
+                                </Form.Group>
 
-                        <label htmlFor="price">Price:</label>
-                        <input type="number" id="price" name="price" value={formData.price} onChange={handleInputChange} step="0.01" required /><br /><br />
+                                <Form.Group>
+                                    <Form.Label>Seats Available:</Form.Label>
+                                    <Form.Control type="number" id="seatsavailable" name="seatsavailable" value={formData.seatsavailable} onChange={handleInputChange} required />
+                                </Form.Group>
 
-                        <button type="submit" className="btn btn-primary">Create Trajet</button>
-                    </form>
+                                <Form.Group>
+                                    <Form.Label>Price:</Form.Label>
+                                    <Form.Control type="number" id="price" name="price" value={formData.price} onChange={handleInputChange} step="0.01" required />
+                                </Form.Group>
+
+                                <Button variant="primary" type="submit">
+                                    Create Trajet
+                                </Button>
+                            </Form>
+                        </Modal.Body>
+                    </Modal>
                 </div>
             )}
 
@@ -174,9 +219,9 @@ const Home = () => {
                                 <strong>Destination Ville:</strong> {trip.destinationVille} <br />
                                 <strong>Destination Rue:</strong> {trip.destinationRue} <br />
                                 {isAuthenticated ? (
-                                    <button type="button" className="btn btn-success" onClick={() => handleReserve(trip.trajetid)}>Reserve</button>
+                                    <Button variant="success" onClick={() => handleReserve(trip.trajetid)}>Reserve</Button>
                                 ) : (
-                                    <button type="button" className="btn btn-primary" onClick={() => window.location.href = '/login'}>Reserve</button>
+                                    <Button variant="primary" onClick={() => window.location.href = '/login'}>Reserve</Button>
                                 )}
                             </li>
                         ))

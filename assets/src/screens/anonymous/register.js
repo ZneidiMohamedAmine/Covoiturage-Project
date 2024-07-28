@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Added useNavigate
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +15,26 @@ const Register = () => {
   });
 
   const [error, setError] = useState([]);
+  const [loading, setLoading] = useState(true); // Added
+  const navigate = useNavigate(); // Added
+
+  useEffect(() => { // Added useEffect
+    const checkLoggedIn = () => {
+      try {
+        const isAuthenticated = !!localStorage.getItem('jwtToken');
+        if (isAuthenticated) {
+          navigate('/'); // Redirect to home if already logged in
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        setError([error.message]);
+        setLoading(false);
+      }
+    };
+
+    checkLoggedIn();
+  }, [navigate]);
 
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -42,9 +62,8 @@ const Register = () => {
 
       const token = responseData.token;
 
-            // Store the token in localStorage
-            localStorage.setItem('jwtToken', token);
-
+      // Store the token in localStorage
+      localStorage.setItem('jwtToken', token);
 
       await fetch('/api/profile', {
         method: 'POST',
@@ -58,6 +77,9 @@ const Register = () => {
       console.error(error.message);
     }
   };
+
+  if (loading) return <div>Loading...</div>; // Added
+  if (error.length > 0 && loading === false) return <div>Error: {error.join(', ')}</div>; // Added
 
   return (
     <div className="container">
