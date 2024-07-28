@@ -18,7 +18,7 @@ class HomeController extends AbstractController
     public function index(EntityManagerInterface $entityManager): JsonResponse
     {
         $tripRepository = $entityManager->getRepository(Trajet::class);
-        $tripArray = $tripRepository->findAllLessThanToday(); // Ensure this method exists and works
+        $tripArray = $tripRepository->findAllAfterThanToday(); // Ensure this method exists and works
         $addressRepository = $entityManager->getRepository(Address::class);
 
         $tripDetails = [];
@@ -27,6 +27,7 @@ class HomeController extends AbstractController
             $destinationAddress = $addressRepository->find($trip->getDestination());
 
             $tripDetails[] = [
+                'trajetid' => $trip->getId(),
                 'date' => $trip->getDate()->format('Y-m-d'),
                 'time' => $trip->getTime()->format('H:i:s'),
                 'seatsAvailable' => $trip->getSeatsAvailable(),

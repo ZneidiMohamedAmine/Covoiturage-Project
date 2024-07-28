@@ -64,6 +64,8 @@ class ProfileController extends AbstractController
         $tripArray = $tripRepository->findAllLessThanToday();
         $tripcreated = $tripRepository->findAllCreated((int)$user->getId());
         $tripJoined = $tripRepository->findAllJoined((int)$user->getId());
+        $tripcurrentcreated = $tripRepository->findAllcurrentCreated((int)$user->getId());
+        $tripcurrentJoined = $tripRepository->findAllcurrentJoined((int)$user->getId());
 
         $addressRepository = $entityManager->getRepository(Address::class);
 
@@ -97,6 +99,7 @@ class ProfileController extends AbstractController
 
             if ($debutAddress && $destinationAddress) {
                 $tripDetailsCreated[] = [
+                    'trajetid' => $trip->getId(),
                     'date' => $trip->getDate()->format('Y-m-d'),
                     'time' => $trip->getTime()->format('H:i:s'),
                     'seatsAvailable' => $trip->getSeatsAvailable(),
@@ -118,6 +121,51 @@ class ProfileController extends AbstractController
 
             if ($debutAddress && $destinationAddress) {
                 $tripDetailsJoined[] = [
+                    'trajetid' => $trip->getId(),
+                    'date' => $trip->getDate()->format('Y-m-d'),
+                    'time' => $trip->getTime()->format('H:i:s'),
+                    'seatsAvailable' => $trip->getSeatsAvailable(),
+                    'seatsOccupied' => $trip->getSeatsOccupied(),
+                    'price' => $trip->getPrice(),
+                    'debutVille' => $debutAddress->getVille(),
+                    'debutRue' => $debutAddress->getRue(),
+                    'destinationVille' => $destinationAddress->getVille(),
+                    'destinationRue' => $destinationAddress->getRue(),
+                ];
+            }
+        }
+
+        $tripDetailsCurrentCreated = [];
+
+        foreach ($tripcurrentcreated as $trip) {
+            $debutAddress = $addressRepository->find($trip->getDebut());
+            $destinationAddress = $addressRepository->find($trip->getDestination());
+
+            if ($debutAddress && $destinationAddress) {
+                $tripDetailsCurrentCreated[] = [
+                    'trajetid' => $trip->getId(),
+                    'date' => $trip->getDate()->format('Y-m-d'),
+                    'time' => $trip->getTime()->format('H:i:s'),
+                    'seatsAvailable' => $trip->getSeatsAvailable(),
+                    'seatsOccupied' => $trip->getSeatsOccupied(),
+                    'price' => $trip->getPrice(),
+                    'debutVille' => $debutAddress->getVille(),
+                    'debutRue' => $debutAddress->getRue(),
+                    'destinationVille' => $destinationAddress->getVille(),
+                    'destinationRue' => $destinationAddress->getRue(),
+                ];
+            }
+        }
+
+        $tripDetailsCurrentJoined = [];
+
+        foreach ($tripcurrentJoined as $trip) {
+            $debutAddress = $addressRepository->find($trip->getDebut());
+            $destinationAddress = $addressRepository->find($trip->getDestination());
+
+            if ($debutAddress && $destinationAddress) {
+                $tripDetailsCurrentJoined[] = [
+                    'trajetid' => $trip->getId(),
                     'date' => $trip->getDate()->format('Y-m-d'),
                     'time' => $trip->getTime()->format('H:i:s'),
                     'seatsAvailable' => $trip->getSeatsAvailable(),
@@ -153,6 +201,8 @@ class ProfileController extends AbstractController
         return new JsonResponse(['userinfo' => $userArray,
             'tripcreated' => $tripDetailsCreated,
             'tripjoined' => $tripDetailsJoined,
+            'tripcurrentcreated' => $tripDetailsCurrentCreated,
+            'tripcurrentjoined' => $tripDetailsCurrentJoined,
             'comments' => $comments,], Response::HTTP_OK);  
             
         

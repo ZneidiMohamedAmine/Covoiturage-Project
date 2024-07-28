@@ -34,6 +34,26 @@ $query = $entityManager->createQuery(
 return $query->getResult();
     }
 
+
+    public function findAllAfterThanToday( ): array
+    {
+$entityManager = $this->getEntityManager();
+
+$now = new \DateTime();
+
+$query = $entityManager->createQuery(
+    'SELECT t
+    FROM App\Entity\Trajet t
+    WHERE t.Date > :today
+    OR (t.Date = :today AND t.Time > :time) 
+    ORDER BY t.id ASC'
+)->setParameter('today', $now->format('Y-m-d'))
+->setParameter('time', $now->format('H:i:s'));
+
+// returns an array of Trajet objects
+return $query->getResult();
+    }
+
     public function findAllCreated(int $owner): array
     {
         $entityManager = $this->getEntityManager();
@@ -66,6 +86,47 @@ return $query->getResult();
             WITH r.idtrajet = t.id
             WHERE (t.Date < :today AND r.iduser = :owner)
             OR (t.Date = :today AND t.Time > :time AND r.iduser = :owner)
+            ORDER BY t.id ASC'
+        )->setParameter('today', $now->format('Y-m-d'))
+         ->setParameter('time', $now->format('H:i:s'))
+         ->setParameter('owner', $owner);
+
+        return $query->getResult();
+    }
+
+
+    public function findAllCurrentCreated(int $owner): array
+    {
+        $entityManager = $this->getEntityManager();
+
+        $now = new \DateTime();
+
+        $query = $entityManager->createQuery(
+            'SELECT t
+            FROM App\Entity\Trajet t
+            WHERE (t.Date > :today AND t.owner_id = :owner)
+            OR (t.Date = :today AND t.Time < :time AND t.owner_id = :owner)
+            ORDER BY t.id ASC'
+        )->setParameter('today', $now->format('Y-m-d'))
+         ->setParameter('time', $now->format('H:i:s'))
+         ->setParameter('owner', $owner);
+
+        return $query->getResult();
+    }
+
+    public function findAllCurrentJoined(int $owner): array
+    {
+        $entityManager = $this->getEntityManager();
+
+        $now = new \DateTime();
+
+        $query = $entityManager->createQuery(
+            'SELECT t
+            FROM App\Entity\Reservation r
+            JOIN App\Entity\Trajet t
+            WITH r.idtrajet = t.id
+            WHERE (t.Date > :today AND r.iduser = :owner)
+            OR (t.Date = :today AND t.Time < :time AND r.iduser = :owner)
             ORDER BY t.id ASC'
         )->setParameter('today', $now->format('Y-m-d'))
          ->setParameter('time', $now->format('H:i:s'))

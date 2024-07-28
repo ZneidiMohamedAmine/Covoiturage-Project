@@ -51,6 +51,10 @@ class ReservationController extends AbstractController
             return new JsonResponse(['error' => 'Places are full'], Response::HTTP_CONFLICT);
         }
 
+        if ($user->getUserIdentifier() == $trajet->getOwnerId()) {
+            return new JsonResponse(['error' => 'Cant Book your own trajet'], Response::HTTP_CONFLICT);
+        }
+
 
         try {
 

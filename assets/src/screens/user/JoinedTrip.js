@@ -5,8 +5,6 @@ const JoinedTrip = () => {
   const [postsCreated, setPostsCreated] = useState([]);
   const [postsJoined, setPostsJoined] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [userInfo, setUserInfo] = useState({});
-  const [comments, setComments] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,15 +22,8 @@ const JoinedTrip = () => {
         }
 
         const data = await response.json();
-        setPostsCreated(data.tripcreated || []);
-        setPostsJoined(data.tripjoined || []);
-        setUserInfo({
-          firstName: data.userinfo.Firstname,
-          lastName: data.userinfo.Lastname,
-          gender: data.userinfo.Gender,
-          driverLicense: data.userinfo.DriverLicense,
-        });
-        setComments(data.comments || []);
+        setPostsCreated(data.tripcurrentcreated || []);
+        setPostsJoined(data.tripcurrentjoined || []);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching profile data:', error);
@@ -47,35 +38,63 @@ const JoinedTrip = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('jwtToken'); // Remove the token from localStorage
+    // Implement logout functionality
     navigate('/logout');
   };
 
-  const handleAnnuler = async (trajetId) => {
+  const handleAnnuler = async (trajetid) => {
     try {
       const response = await fetch(`/api/trajet/supprimer`, {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ trajetid: trajetId }), // Ensuring trajetid is sent in correct case
+        body: JSON.stringify({ trajetid }), // Ensuring trajetid is sent in correct case
       });
 
       if (!response.ok) {
         throw new Error('Failed to delete trip');
       }
 
+      
+
       // Optionally, update the state to remove the deleted trip from the UI
       setPostsCreated((prevPosts) =>
-        prevPosts.filter((post) => post.trajetId !== trajetId)
+        prevPosts.filter((post) => post.trajetid !== trajetid)
       );
       setPostsJoined((prevPosts) =>
-        prevPosts.filter((post) => post.trajetId !== trajetId)
+        prevPosts.filter((post) => post.trajetid !== trajetid)
       );
     } catch (error) {
       console.error('Error deleting trip:', error);
     }
   };
+
+  const handleModifier = async (trajetid) => {
+    try {
+      const response = await fetch(`/api/trajet/modifier`, {
+        method: 'UPDATE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ trajetid }), // Ensuring trajetid is sent in correct case
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete trip');
+      }
+
+          // Optionally, update the state to remove the deleted trip from the UI
+          setPostsCreated((prevPosts) =>
+            prevPosts.filter((post) => post.trajetid !== trajetid)
+          );
+          setPostsJoined((prevPosts) =>
+            prevPosts.filter((post) => post.trajetid !== trajetid)
+          );
+        } catch (error) {
+          console.error('Error deleting trip:', error);
+        }
+      };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -87,19 +106,12 @@ const JoinedTrip = () => {
         <button className="btn btn-primary" onClick={handleHome}>
           Home
         </button>
-        <button className="btn btn-danger" onClick={handleLogout}>
-          Logout
-        </button>
+        <form action="/logout" method="POST">
+          <button type="submit" className="btn btn-danger" onClick={handleLogout}>
+            Logout
+          </button>
+        </form>
       </header>
-
-      <div className="user-info mb-4">
-        <h3>User Information</h3>
-        <p><strong>First Name:</strong> {userInfo.firstName}</p>
-        <p><strong>Last Name:</strong> {userInfo.lastName}</p>
-        <p><strong>Gender:</strong> {userInfo.gender}</p>
-        <p><strong>Driver License:</strong> {userInfo.driverLicense ? 'Yes' : 'No'}</p>
-      </div>
-
       <div className="joined-trips">
         <h3>Joined Trips</h3>
         {postsJoined.length > 0 ? (
@@ -112,13 +124,14 @@ const JoinedTrip = () => {
               <p><strong>Seats Available:</strong> {post.seatsAvailable}</p>
               <p><strong>Seats Occupied:</strong> {post.seatsOccupied}</p>
               <p><strong>Price:</strong> €{post.price}</p>
+              
+              <button className="btn btn-danger" onClick={() => handleAnnuler(post.trajetid)}>Annuler</button>
             </div>
           ))
         ) : (
           <p>No joined trips found.</p>
         )}
       </div>
-
       <div className="created-trips mt-4">
         <h3>Created Trips</h3>
         {postsCreated.length > 0 ? (
@@ -131,26 +144,14 @@ const JoinedTrip = () => {
               <p><strong>Seats Available:</strong> {post.seatsAvailable}</p>
               <p><strong>Seats Occupied:</strong> {post.seatsOccupied}</p>
               <p><strong>Price:</strong> €{post.price}</p>
+              <button className="btn btn-warning" onClick={() => handleModifier(post.trajetid)}>Modifier</button>
+              <button className="btn btn-danger" onClick={() => handleAnnuler(post.trajetid)}>
+                Annuler
+              </button>
             </div>
           ))
         ) : (
           <p>No created trips found.</p>
-        )}
-      </div>
-
-      <div className="comments mt-4">
-        <h3>Comments</h3>
-        {comments.length > 0 ? (
-          comments.map((comment, index) => (
-            <div className="comment" key={index}>
-              <p><strong>Stars:</strong> {comment.Stars}</p>
-              <p><strong>Description:</strong> {comment.Description}</p>
-              <p><strong>Commenter Name:</strong> {comment.commentername}</p>
-              <p><strong>Commenter Last Name:</strong> {comment.commenterLastname}</p>
-            </div>
-          ))
-        ) : (
-          <p>No comments found.</p>
         )}
       </div>
     </div>

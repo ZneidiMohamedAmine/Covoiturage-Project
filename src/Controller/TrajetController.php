@@ -179,7 +179,7 @@ class TrajetController extends AbstractController
         return new JsonResponse(['error' => 'Failed to modify trajet: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
     }
-    #[Route('/trajet/supprimer', name: 'app_modifier_supprimer', methods: ['POST'])]
+    #[Route('/trajet/supprimer', name: 'app_modifier_supprimer', methods: ['DELETE'])]
     public function supprimerTrajet(Request $request, EntityManagerInterface $entityManager): Response
     {
             /** @var User $user */

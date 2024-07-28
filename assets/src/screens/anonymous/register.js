@@ -42,6 +42,10 @@ const Register = () => {
 
       const token = responseData.token;
 
+            // Store the token in localStorage
+            localStorage.setItem('jwtToken', token);
+
+
       await fetch('/api/profile', {
         method: 'POST',
         headers: {

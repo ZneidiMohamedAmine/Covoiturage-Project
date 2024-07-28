@@ -43,8 +43,7 @@ class UserController extends AbstractController
             $email = $data['email'] ?? '';
             $password = $data['password'] ?? '';
 
-            dump($email);
-            dump($password);
+           
             
 
             if (!$email || !$password) {
@@ -81,7 +80,7 @@ class UserController extends AbstractController
     public function logout(Security $security): Response
     {
         $response = $security->logout(false);
-        return $this->redirectToRoute('/');
+        return new JsonResponse('Succes', Response::HTTP_OK);
     }
 
 

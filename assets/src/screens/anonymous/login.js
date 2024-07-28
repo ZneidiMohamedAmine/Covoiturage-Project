@@ -27,6 +27,9 @@ const Login = () => {
             const responseData = await response.json();
             const token = responseData.jwt;
 
+            // Store the token in localStorage
+            localStorage.setItem('jwtToken', token);
+
             await fetch('/api/profile', {
         method: 'POST',
         headers: {
