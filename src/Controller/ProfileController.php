@@ -33,21 +33,19 @@ class ProfileController extends AbstractController
     {
         
         if ($request->headers->get('Content-Type') === 'application/json') {
-            $data = json_decode($request->getContent(), true);}
+            $data = json_decode($request->getContent(), true);
+            }
 
            
 
 
         $profileid= $data['idprofile'] ?? null;
         
+
+        
     
         $userRepository = $entityManager->getRepository(User::class);
-        //$userId = 4;
-        //$userId = $request->query->get('userId');
 
-       
-        
-         //$user = $userRepository->find(4);
          if($profileid === null)
          {
             $user = $this->getUser();
@@ -56,6 +54,7 @@ class ProfileController extends AbstractController
          {
             $user = $userRepository->find($profileid);
          }
+         
          
          
         
@@ -67,9 +66,11 @@ class ProfileController extends AbstractController
             throw $this->createNotFoundException('User not found');
         }
 
+        /** @var User $authuser  */ $authuser = $this->getUser();
+
         $userArray = [
             'currentuser' => $user->getId(),
-            'authuser' => $this->getUser()->getUserIdentifier(),
+            'authuser' => $authuser->getId(),
             'Firstname' => $user->getFirstName(),
             'Lastname' => $user->getLastName(),
             'Gender' => $user->getGender(),
@@ -86,7 +87,7 @@ class ProfileController extends AbstractController
         $addressRepository = $entityManager->getRepository(Address::class);
 
         $CommentRepository = $entityManager->getRepository(Comment::class);
-        $CommentArray = $CommentRepository->findAllCommentrelated(1);
+        $CommentArray = $CommentRepository->findAllCommentrelated($user->getId());
 
         $tripDetails = [];
 
@@ -206,6 +207,7 @@ class ProfileController extends AbstractController
 
            
                 $comments[] = [
+                    'commenterId' =>$comment->getcommenterId(),
                     'Stars' => $comment->getStarsNumber(),
                     'Description' => $comment->getDescription(),
                     'commentername' => $username,
@@ -224,7 +226,7 @@ class ProfileController extends AbstractController
         
     }
 
-    #[Route('/profile/comment', name: 'app_comment_profile')]
+    #[Route('/comment', name: 'app_comment_profile')]
     public function comment(Request $request, EntityManagerInterface $entityManager): Response
     {
         $userRepository = $entityManager->getRepository(User::class);
@@ -241,7 +243,7 @@ class ProfileController extends AbstractController
             return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
-        $commenteduser =  $data['commenteduserid'] ?? null;
+        $commenteduser =  $data['profileId'] ?? null;
 
         if ($commenteduser == null) {
             throw $this->createNotFoundException('User not found');
@@ -257,7 +259,7 @@ class ProfileController extends AbstractController
             return new JsonResponse(['error' => 'Can t comment yourself'], Response::HTTP_BAD_REQUEST);
         }
 
-        $nbrstar = htmlspecialchars($data['nbrstar'] ?? null);
+        $nbrstar = htmlspecialchars($data['stars'] ?? null);
         $description = htmlspecialchars($data['description'] ?? null);
 
         $comment = new Comment();

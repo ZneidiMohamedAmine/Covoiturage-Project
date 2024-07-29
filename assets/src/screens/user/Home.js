@@ -102,23 +102,8 @@ const Home = () => {
 
     const handleProfileClick = async (idprofile) => {
         try {
-            const response = await fetch('/api/profile', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    
-                },
-                body: JSON.stringify({ idprofile })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch profile');
-            }
-            alert('Here');
-
+            localStorage.setItem('idprofile', idprofile);
             window.location.href = '/profile';
-            alert('Then Here');
-            
         } catch (error) {
             console.error('Error fetching profile:', error);
         }};

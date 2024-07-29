@@ -7,6 +7,10 @@ const JoinedTrip = () => {
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState({});
   const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState({
+    stars: '',
+    description: ''
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,16 +21,21 @@ const JoinedTrip = () => {
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ idprofile: localStorage.getItem('idprofile') })
         });
 
         if (!response.ok) {
           throw new Error('Failed to fetch profile data');
         }
 
+        console.log('Profile ID from localStorage:', localStorage.getItem('idprofile'));
+
         const data = await response.json();
         setPostsCreated(data.tripcreated || []);
         setPostsJoined(data.tripjoined || []);
         setUserInfo({
+          currentUser: data.userinfo.currentuser,
+          authUser: data.userinfo.authuser,
           firstName: data.userinfo.Firstname,
           lastName: data.userinfo.Lastname,
           gender: data.userinfo.Gender,
@@ -34,13 +43,19 @@ const JoinedTrip = () => {
         });
         setComments(data.comments || []);
         setLoading(false);
+
+        // Move the alert here to ensure it only runs once after data is fetched
+        alert(`${data.userinfo.currentuser} ${data.userinfo.authuser}`);
       } catch (error) {
         console.error('Error fetching profile data:', error);
       }
     };
 
     fetchProfile();
-  }, []);
+    return () => {
+      localStorage.removeItem('idprofile');
+    };
+  }, []); // Empty dependency array to run only once on mount
 
   const handleHome = () => {
     navigate('/');
@@ -51,32 +66,39 @@ const JoinedTrip = () => {
     navigate('/logout');
   };
 
-  const handleAnnuler = async (trajetId) => {
+  const handleCommentChange = (event) => {
+    const { name, value } = event.target;
+    setNewComment((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handlePostComment = async () => {
     try {
-      const response = await fetch(`/api/trajet/supprimer`, {
+      const response = await fetch('/api/comment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ trajetid: trajetId }), // Ensuring trajetid is sent in correct case
+        body: JSON.stringify({ ...newComment, profileId: userInfo.currentUser })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete trip');
+        throw new Error('Failed to post comment');
       }
 
-      // Optionally, update the state to remove the deleted trip from the UI
-      setPostsCreated((prevPosts) =>
-        prevPosts.filter((post) => post.trajetId !== trajetId)
-      );
-      setPostsJoined((prevPosts) =>
-        prevPosts.filter((post) => post.trajetId !== trajetId)
-      );
+      // Optionally, fetch comments again to update the UI
+      const data = await response.json();
+      setComments((prev) => [...prev, data.comment]);
     } catch (error) {
-      console.error('Error deleting trip:', error);
+      console.error('Error posting comment:', error);
     }
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -140,13 +162,49 @@ const JoinedTrip = () => {
 
       <div className="comments mt-4">
         <h3>Comments</h3>
+        {userInfo.currentUser !== userInfo.authUser && (
+          <div className="new-comment mb-4">
+            <h4>Leave a Comment</h4>
+            <div className="form-group">
+              <label htmlFor="stars">Stars:</label>
+              <input
+                type="number"
+                className="form-control"
+                id="stars"
+                name="stars"
+                value={newComment.stars}
+                onChange={handleCommentChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="description">Description:</label>
+              <textarea
+                className="form-control"
+                id="description"
+                name="description"
+                value={newComment.description}
+                onChange={handleCommentChange}
+                required
+              ></textarea>
+            </div>
+            <button className="btn btn-primary" onClick={handlePostComment}>Post Comment</button>
+          </div>
+        )}
         {comments.length > 0 ? (
           comments.map((comment, index) => (
             <div className="comment" key={index}>
-              <p><strong>Stars:</strong> {comment.Stars}</p>
-              <p><strong>Description:</strong> {comment.Description}</p>
+              <p><strong>Stars:</strong> {comment.Stars || 'N/A'}</p>
+              <p><strong>Description:</strong> {comment.Description || 'N/A'}</p>
               <p><strong>Commenter Name:</strong> {comment.commentername}</p>
               <p><strong>Commenter Last Name:</strong> {comment.commenterLastname}</p>
+              {userInfo.authUser === comment.commenterId && (
+                <>
+                  <button className="btn btn-warning">Modifier</button>
+                  <button className="btn btn-danger">Supprimer</button>
+                </>
+              )}
+              <button className="btn btn-secondary">Rapporter</button>
             </div>
           ))
         ) : (
