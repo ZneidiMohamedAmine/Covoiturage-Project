@@ -60,9 +60,11 @@ const Register = () => {
         throw new Error('Network response was not ok: ' + JSON.stringify(responseData));
       }
 
-      const token = responseData.token;
-
+      const token = responseData.jwt;
       
+
+      // Store the token in localStorage
+      localStorage.setItem('jwtToken', token);
 
       await fetch('/api/profile', {
         method: 'POST',
@@ -71,8 +73,7 @@ const Register = () => {
         }
       });
 
-      // Store the token in localStorage
-      localStorage.setItem('jwtToken', token);
+      
 
       navigate('/profile');
     } catch (error) {

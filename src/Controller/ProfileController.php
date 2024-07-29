@@ -32,7 +32,13 @@ class ProfileController extends AbstractController
     public function index(Request $request, EntityManagerInterface $entityManager): Response
     {
         
-    
+        if ($request->headers->get('Content-Type') === 'application/json') {
+            $data = json_decode($request->getContent(), true);}
+
+           
+
+
+        $profileid= $data['idprofile'] ?? null;
         
     
         $userRepository = $entityManager->getRepository(User::class);
@@ -42,7 +48,15 @@ class ProfileController extends AbstractController
        
         
          //$user = $userRepository->find(4);
-         $user = $this->getUser();
+         if($profileid === null)
+         {
+            $user = $this->getUser();
+         }
+         else
+         {
+            $user = $userRepository->find($profileid);
+         }
+         
          
         
        // $user = $this->getUser();
@@ -54,6 +68,8 @@ class ProfileController extends AbstractController
         }
 
         $userArray = [
+            'currentuser' => $user->getId(),
+            'authuser' => $this->getUser()->getUserIdentifier(),
             'Firstname' => $user->getFirstName(),
             'Lastname' => $user->getLastName(),
             'Gender' => $user->getGender(),

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Address;
 use App\Entity\Trajet;
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,6 +21,7 @@ class HomeController extends AbstractController
         $tripRepository = $entityManager->getRepository(Trajet::class);
         $tripArray = $tripRepository->findAllAfterThanToday(); // Ensure this method exists and works
         $addressRepository = $entityManager->getRepository(Address::class);
+        $userRepository = $entityManager->getRepository(User::class);
 
         $tripDetails = [];
         foreach ($tripArray as $trip) {
@@ -27,6 +29,8 @@ class HomeController extends AbstractController
             $destinationAddress = $addressRepository->find($trip->getDestination());
 
             $tripDetails[] = [
+                'owner' => $userRepository->find($trip->getOwnerId())->getFirstName(),
+                'ownerid' => $userRepository->find($trip->getOwnerId())->getId(),
                 'trajetid' => $trip->getId(),
                 'date' => $trip->getDate()->format('Y-m-d'),
                 'time' => $trip->getTime()->format('H:i:s'),

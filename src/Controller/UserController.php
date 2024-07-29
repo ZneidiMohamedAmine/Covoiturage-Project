@@ -129,7 +129,7 @@ class UserController extends AbstractController
                 $entityManager->flush();
 
                 $token = $this->jwtManager->create($user);
-                return new JsonResponse(['token' => $token], Response::HTTP_OK);                
+                return new JsonResponse(['jwt' => $token], Response::HTTP_OK);                
             } catch (\Exception $e) {
                 $error[] = "Failed to register user: " . $e->getMessage();
                 return new JsonResponse(['message' => 'Fail'], Response::HTTP_FAILED_DEPENDENCY);

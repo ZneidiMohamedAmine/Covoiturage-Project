@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
+import { Navigate } from 'react-router-dom';
 
 const Home = () => {
     const [trajets, setTrajets] = useState([]);
@@ -98,6 +99,29 @@ const Home = () => {
             setError(error.message);
         }
     };
+
+    const handleProfileClick = async (idprofile) => {
+        try {
+            const response = await fetch('/api/profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    
+                },
+                body: JSON.stringify({ idprofile })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch profile');
+            }
+            alert('Here');
+
+            window.location.href = '/profile';
+            alert('Then Here');
+            
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+        }};
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -209,6 +233,7 @@ const Home = () => {
                     {trajets.length > 0 ? (
                         trajets.map((trip, index) => (
                             <li key={index}>
+                                 <strong>Owner:</strong> <a href='#' onClick={() => handleProfileClick(trip.ownerid)}>{trip.owner}</a> <br />
                                 <strong>Date:</strong> {trip.date} <br />
                                 <strong>Time:</strong> {trip.time} <br />
                                 <strong>Seats Available:</strong> {trip.seatsAvailable} <br />

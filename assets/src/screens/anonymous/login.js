@@ -60,8 +60,7 @@ const Login = () => {
                 }
               })
         
-                    // Store the token in localStorage or cookie
-                    localStorage.setItem('token', token);
+                    
 
             // Redirect to profile page
             navigate('/profile');
