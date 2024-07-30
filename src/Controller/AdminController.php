@@ -14,7 +14,7 @@ class AdminController extends AbstractController
     #[Route('/api/control_panel', name: 'app_control_panel' , methods: ['GET','POST'])]
     public function index(EntityManagerInterface $em): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+       
         $users = $em->getRepository(User::class)->findAll();
 
         $userArray = [];
@@ -27,10 +27,11 @@ class AdminController extends AbstractController
                 'Gender' => $user->getGender(),
                 'DriverLicense' => $user->isDriverLisence(),
                 'Email' => $user->getEmail(),
+                'id' => $user->getId(),
             ];
         }
         return $this->render('Pages/controlpanel.html.twig', [
-            'controller_name' => 'AdminController','users' => $users,
+            'users' => $userArray,
         ]);
     }
 }

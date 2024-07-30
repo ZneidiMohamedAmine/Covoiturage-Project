@@ -200,14 +200,20 @@ class ProfileController extends AbstractController
 
         foreach ($CommentArray as $comment) {
             $commenterid = $comment->getCommenterId();
+            dump($commenterid);
+            /**
+             * @var User $user
+             */
             $user = $userRepository->find($commenterid);
             $username = $user->getFirstname();
             $userlast = $user->getLastname();
             
+            
 
            
                 $comments[] = [
-                    'commenterId' =>$comment->getcommenterId(),
+                    'commentId' => $comment->getId(),
+                    'commenterId' => $user->getId(),
                     'Stars' => $comment->getStarsNumber(),
                     'Description' => $comment->getDescription(),
                     'commentername' => $username,
@@ -309,7 +315,7 @@ class ProfileController extends AbstractController
 
     }
 
-    #[Route('/profile/comment/modifier', name: 'app_comment_modifier_profile')]
+    #[Route('/comment/modifier', name: 'app_comment_modifier_profile')]
     public function modifiercomment(Request $request, EntityManagerInterface $entityManager): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -318,8 +324,8 @@ class ProfileController extends AbstractController
             return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
         
-
-        $id = $data['id'] ?? null;
+        dump($data);
+        $id = $data['commentId'] ?? null;
 
 
         $CommentRepository = $entityManager->getRepository(Comment::class);
@@ -331,9 +337,11 @@ class ProfileController extends AbstractController
         $nbrstar = htmlspecialchars($data['nbrstar'] ?? null);
         $description = htmlspecialchars($data['description'] ?? null);
 
+        
+
         if($commentomodifier->getcommenterId() == $user)
         {
-
+            
         $commentomodifier->setDescription($description);
         $commentomodifier->setStarsNumber($nbrstar);
         $entityManager->persist($commentomodifier);

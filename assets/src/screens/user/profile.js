@@ -11,6 +11,12 @@ const JoinedTrip = () => {
     stars: '',
     description: ''
   });
+  const [editCommentIndex, setEditCommentIndex] = useState(null); // Track the index of the comment being edited
+  const [editedComment, setEditedComment] = useState({
+    stars: '',
+    description: '',
+    commentId: ''
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,8 +34,6 @@ const JoinedTrip = () => {
           throw new Error('Failed to fetch profile data');
         }
 
-        console.log('Profile ID from localStorage:', localStorage.getItem('idprofile'));
-
         const data = await response.json();
         setPostsCreated(data.tripcreated || []);
         setPostsJoined(data.tripjoined || []);
@@ -44,8 +48,7 @@ const JoinedTrip = () => {
         setComments(data.comments || []);
         setLoading(false);
 
-        // Move the alert here to ensure it only runs once after data is fetched
-        alert(`${data.userinfo.currentuser} ${data.userinfo.authuser}`);
+
       } catch (error) {
         console.error('Error fetching profile data:', error);
       }
@@ -55,14 +58,14 @@ const JoinedTrip = () => {
     return () => {
       localStorage.removeItem('idprofile');
     };
-  }, []); // Empty dependency array to run only once on mount
+  }, []);
 
   const handleHome = () => {
     navigate('/');
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('jwtToken'); // Remove the token from localStorage
+    localStorage.removeItem('jwtToken');
     navigate('/logout');
   };
 
@@ -88,7 +91,6 @@ const JoinedTrip = () => {
         throw new Error('Failed to post comment');
       }
 
-      // Optionally, fetch comments again to update the UI
       const data = await response.json();
       setComments((prev) => [...prev, data.comment]);
     } catch (error) {
@@ -96,9 +98,61 @@ const JoinedTrip = () => {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const handleEditComment = (index) => {
+    setEditCommentIndex(index);
+    setEditedComment({
+      stars: comments[index].Stars,
+      description: comments[index].Description,
+      commentId: comments[index].commentId
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditCommentIndex(null);
+    setEditedComment({
+      stars: '',
+      description: '',
+      commentId: '',
+    });
+  };
+
+  const handleSaveComment = async (commentId, index) => {
+    try {
+      const response = await fetch('/api/comment/modifier', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ editedComment })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to modify comment');
+      }
+
+      const data = await response.json();
+      setComments((prev) =>
+        prev.map((comment, i) =>
+          i === index
+            ? { ...comment, Stars: data.stars, Description: data.description }
+            : comment
+        )
+      );
+
+      handleCancelEdit();
+    } catch (error) {
+      console.error('Error modifying comment:', error);
+    }
+  };
+
+  const handleEditChange = (event) => {
+    const { name, value } = event.target;
+    setEditedComment((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -194,17 +248,50 @@ const JoinedTrip = () => {
         {comments.length > 0 ? (
           comments.map((comment, index) => (
             <div className="comment" key={index}>
-              <p><strong>Stars:</strong> {comment.Stars || 'N/A'}</p>
-              <p><strong>Description:</strong> {comment.Description || 'N/A'}</p>
-              <p><strong>Commenter Name:</strong> {comment.commentername}</p>
-              <p><strong>Commenter Last Name:</strong> {comment.commenterLastname}</p>
-              {userInfo.authUser === comment.commenterId && (
+              {editCommentIndex === index ? (
                 <>
-                  <button className="btn btn-warning">Modifier</button>
-                  <button className="btn btn-danger">Supprimer</button>
+                  <div className="form-group">
+                    <label htmlFor={`edit-stars-${index}`}>Stars:</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      id={`edit-stars-${index}`}
+                      name="stars"
+                      value={editedComment.stars}
+                      onChange={handleEditChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor={`edit-description-${index}`}>Description:</label>
+                    <textarea
+                      className="form-control"
+                      id={`edit-description-${index}`}
+                      name="description"
+                      value={editedComment.description}
+                      onChange={handleEditChange}
+                      required
+                    ></textarea>
+                  </div>
+                  <button className="btn btn-success" onClick={() => handleSaveComment(comment.commenterId, index)}>Confirm</button>
+                  <button className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>
+                </>
+              ) : (
+                <>
+                  <p><strong>Stars:</strong> {comment.Stars || 'N/A'}</p>
+                  <p><strong>Description:</strong> {comment.Description || 'N/A'}</p>
+                  <p><strong>Commenter Name:</strong> {comment.commentername}</p>
+                  <p><strong>Commenter Last Name:</strong> {comment.commenterLastname}</p>
+                  <p><strong>Commenter Id:</strong> {comment.commenterId}</p>
+                  {userInfo.authUser === comment.commenterId && (
+                    <>
+                      <button className="btn btn-warning" onClick={() => handleEditComment(index)}>Modifier</button>
+                      <button className="btn btn-danger">Supprimer</button>
+                    </>
+                  )}
+                  <button className="btn btn-secondary">Rapporter</button>
                 </>
               )}
-              <button className="btn btn-secondary">Rapporter</button>
             </div>
           ))
         ) : (
