@@ -70,7 +70,7 @@ const ControlPanel = () => {
                         <div key={user.id} className="user-item mb-3">
                             <p><strong>Name:</strong> {user.Firstname}</p>
                             <p><strong>Email:</strong> {user.Email}</p>
-                            <button className="btn btn-primary me-2" onClick={() => handleView(user.id)}>View</button>
+                            <button className="btn btn-primary me-2" onClick={() => handleProfileClick(user.id)}>View</button>
                             <button className="btn btn-warning me-2" onClick={() => handleReport(user.id)}>Report</button>
                             <button className="btn btn-danger" onClick={() => handleDeactivate(user.id)}>Deactivate</button>
                         </div>

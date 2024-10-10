@@ -53,7 +53,7 @@ security:
     access_control:
     # - { path: ^/admin, roles: ROLE_ADMIN }
     # - { path: ^/api/login, roles: PUBLIC_ACCESS }
-    - { path: ^/, roles: PUBLIC_ACCESS }
+    - { path: ^/, roles: PUBLIC_ACCESS,  allow_if: "not is_granted('ROLE_BANNED')"}
     - { path: ^/api,       roles: ROLE_ADMIN }
     - { path: ^/control_panel,  roles: ROLE_ADMIN }
 

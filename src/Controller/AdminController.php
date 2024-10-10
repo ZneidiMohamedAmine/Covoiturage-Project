@@ -2,26 +2,22 @@
 
 namespace App\Controller;
 
-use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;
 
 class AdminController extends AbstractController
 {
-    #[Route('/api/control_panel', name: 'app_control_panel' , methods: ['GET','POST'])]
-    public function index(EntityManagerInterface $em): Response
+    #[Route('/api/control_panel', name: 'app_control_panel', methods: ['GET'])]
+    public function index(EntityManagerInterface $em): JsonResponse
     {
-       
         $users = $em->getRepository(User::class)->findAll();
-
         $userArray = [];
 
         foreach ($users as $user) {
-            
-            $userArray = [
+            $userArray[] = [
                 'Firstname' => $user->getFirstName(),
                 'Lastname' => $user->getLastName(),
                 'Gender' => $user->getGender(),
@@ -30,8 +26,15 @@ class AdminController extends AbstractController
                 'id' => $user->getId(),
             ];
         }
-        return $this->render('Pages/controlpanel.html.twig', [
-            'users' => $userArray,
-        ]);
+
+        return new JsonResponse(['users' => $userArray]);
+    }
+
+    #[Route('/api/banned', name: 'app_control_panel', methods: ['GET'])]
+    public function banned(EntityManagerInterface $em): JsonResponse
+    {
+
+
+        return new JsonResponse(['users' => 'm']);
     }
 }
